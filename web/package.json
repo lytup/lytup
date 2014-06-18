@@ -1,0 +1,12 @@
+{
+  "name": "lytup-web",
+  "description": "lytup web app",
+  "version": "0.0.1",
+  "devDependencies": {
+    "gulp": "^3.7.0",
+    "gulp-less": "^1.2.3"
+  },
+  "dependencies": {
+    "gulp": "^3.8.0"
+  }
+}

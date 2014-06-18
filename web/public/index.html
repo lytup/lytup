@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en" ng-app="lytup">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Lytup</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Place favicon.ico and apple-touch-icon(s) in the root directory -->
+
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+  <link href="bower_components/font-awesome/css/font-awesome.css" rel="stylesheet">
+  <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Paytone+One'>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body ng-controller="Controller">
+
+  <!--[if lt IE 10]>
+    <p class="browse-happy">
+      You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.
+    </p>
+  <![endif]-->
+
+  <!-- Fixed navbar -->
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">
+          <i class="fa fa-cloud"></i> Lytup
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <!-- <ul class="nav navbar-nav">
+          <li class="active">
+            <a href="#">Home</a>
+          </li>
+          <li>
+            <a href="#about">About</a>
+          </li>
+          <li>
+            <a href="#contact">Contact</a>
+          </li>
+        </ul> -->
+      </div>
+      <!--/.nav-collapse -->
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="content" ng-view></div>
+  </div>
+
+  <div class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 text-muted">
+          Lytup v<span app-version></span>
+        </div>
+        <div class="col-md-6 text-center text-muted social-icon">
+          <span class="facebook-icon">
+            <a href="https://www.facebook.com/Lytup" target="_blank">
+              <i class="fa fa-facebook-square fa-2x"></i>
+            </a>
+          </span>
+          <span class="twitter-icon">
+            <a href="https://twitter.com/labstack" target="_blank">
+              <i class="fa fa-twitter-square fa-2x"></i>
+            </a>
+          </span>
+          <span class="plus-icon">
+            <a href="https://www.google.com/+labstack" target="_blank">
+              <i class="fa fa-google-plus-square fa-2x"></i>
+            </a>
+          </span>
+          <span class="github-icon">
+            <a href="https://github.com/labstack" target="_blank">
+              <i class="fa fa-github-square fa-2x"></i>
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="bower_components/jquery/dist/jquery.js"></script>
+  <script src="bower_components/ng-file-upload/angular-file-upload-html5-shim.js"></script>
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="bower_components/angular-route/angular-route.js"></script>
+  <script src="bower_components/restangular/dist/restangular.js"></script>
+  <script src="bower_components/ngSocket/dist/ngSocket.js"></script>
+  <script src="bower_components/ng-file-upload/angular-file-upload.js"></script>
+  <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+  <script src="bower_components/lodash/dist/lodash.js"></script>
+  <script src="bower_components/zeroclipboard/dist/ZeroClipboard.js"></script>
+  <script src="bower_components/jquery-knob/js/jquery.knob.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/services.js"></script>
+  <script src="js/controllers.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/directives.js"></script>
+
+  <script>
+    (function(b, o, i, l, e, r) {
+      b.GoogleAnalyticsObject = l;
+      b[l] || (b[l] =
+        function() {
+          (b[l].q = b[l].q || []).push(arguments)
+        });
+      b[l].l = +new Date;
+      e = o.createElement(i);
+      r = o.getElementsByTagName(i)[0];
+      e.src = '//www.google-analytics.com/analytics.js';
+      r.parentNode.insertBefore(e, r)
+    }(window, document, 'script', 'ga'));
+    ga('create', 'UA-51208124-2');
+    ga('send', 'pageview');
+  </script>
+</body>
+
+</html>

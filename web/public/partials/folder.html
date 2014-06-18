@@ -1,0 +1,60 @@
+<div class="row folder-panel">
+  <div class="col-md-3 menu-left">
+    <ul class="list-inline">
+      <li>
+        <button type="button" class="btn btn-default btn-cir"
+            bs-tooltip title="Share Folder">
+          <i class="fa fa-share fa-lg"></i>
+        </button>
+      </li>
+      <li>
+        <button type="button" class="btn btn-default btn-cir"
+            ly-copy data-clipboard-text="{{BASE_URI}}/{{folder.id}}">
+          <i class="fa fa-link fa-lg"></i>
+        </button>
+      </li>
+    </ul>
+  </div>
+  <div class="col-md-6">
+  </div>
+  <div class="col-md-3 menu-right">
+    <ul class="list-inline">
+      <li>
+        <div class="btn btn-default btn-file btn-cir"
+            bs-tooltip title="Add Files">
+          <i class="fa fa-plus fa-lg"></i>
+          <input type="file" ng-file-select="addFiles($files)" multiple>
+        </div>
+      </li>
+      <li>
+        <button type="button" class="btn btn-default btn-cir"
+          bs-tooltip title="Download" ly-download
+          data-uri="/d/{{folder.id}}">
+          <i class="fa fa-download fa-lg"></i>
+        </button>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="center-block drop-box" ng-file-drop="addFiles($files)"
+    ng-if="folder.id && !folder.files.length">
+  Drag & Drop<br>
+  <small>or</small><br>
+  <span class="btn btn-success btn-lg btn-file">
+    <i class="fa fa-cloud-upload fa-lg"></i> Browse Files
+    <input type="file" ng-file-select="addFiles($files)" multiple>
+  </span>
+</div>
+
+<div class="row grid">
+  <div class="col-md-3 col-sm-4 col-xs-6 grid-item"
+      ng-repeat="file in folder.files | orderBy:'-createdAt'">
+    <i class="fa fa-file-o"></i><br>
+    {{file.name}} ({{file.size | bytes}})
+    <div class="grid-item-center">
+      <input value="{{file.loaded}}" data-width="50" data-fgcolor="#45aeea"
+          data-bgcolor="#bee3f7" data-thickness=".1" ly-knob>
+    </div>
+  </div>
+</div>
