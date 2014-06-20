@@ -27,13 +27,14 @@ func UpdateFile(rw http.ResponseWriter, params martini.Params, file models.File)
 }
 
 func UploadFiles(req *http.Request, rw http.ResponseWriter, params martini.Params) {
+	log.Println("Download files")
 	mr, err := req.MultipartReader()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Create folder
-	folPath := path.Join(UPLOAD_DIR, params["folderId"])
+	folPath := path.Join(UPLOAD_DIR, params["id"])
 	err = os.MkdirAll(folPath, 0755)
 	if err != nil {
 		log.Fatal(err)
@@ -59,17 +60,17 @@ func UploadFiles(req *http.Request, rw http.ResponseWriter, params martini.Param
 	rw.WriteHeader(http.StatusNoContent)
 }
 
-func DownloadFiles(rw http.ResponseWriter, params martini.Params) {
-	log.Println("Download files")
-	folId := params["folderId"]
-	fileId := params["fileId"]
+func DownloadFile(rw http.ResponseWriter, params martini.Params) {
+	log.Println("Download file")
+	fileId := params["id"]
+	folId, file := models.FindFileById(fileId)
 	folPath := path.Join(UPLOAD_DIR, folId)
 
-	file := models.FindFileById(folId, fileId)
 	f, err := os.Open(path.Join(folPath, file.Name))
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	rw.WriteHeader(http.StatusOK)
 	rw.Header().Set("Content-Disposition", "attachment; filename="+file.Name)
 	io.Copy(rw, f)

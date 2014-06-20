@@ -16,17 +16,22 @@ angular.module('lytup', [
       RestangularProvider.setBaseUrl('/api');
 
       $routeProvider.when('/', {
-        templateUrl: 'partials/landing.html'
+        templateUrl: '/partials/landing.html'
       });
 
       $routeProvider.when('/home', {
         controller: 'HomeCtrl',
-        templateUrl: 'partials/home.html'
+        templateUrl: '/partials/home.html'
       });
 
       $routeProvider.when('/:id', {
         controller: 'FolderCtrl',
-        templateUrl: 'partials/folder.html'
+        templateUrl: '/partials/folder.html'
+      });
+
+      $routeProvider.when('/i/:id', {
+        controller: 'FileCtrl',
+        templateUrl: '/partials/file.html'
       });
 
       $routeProvider.otherwise({

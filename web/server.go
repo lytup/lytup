@@ -8,13 +8,49 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
-var WEB_ROUTES map[string]bool = map[string]bool {
+var WEB_ROUTES map[string]bool = map[string]bool{
 	"home": true,
 }
 
-func home(rw http.ResponseWriter) {
+func main() {
+	m := martini.Classic()
+
+	m.Get("/:id", home)   // Folder check
+	m.Get("/i/:id", home) // File check
+
+	log.Fatal(http.ListenAndServe("localhost:3001", m))
+}
+
+func home(req *http.Request, rw http.ResponseWriter, params martini.Params) {
+	id := params["id"]
+
+	if WEB_ROUTES[id] {
+		sendIndex(rw)
+		return
+	}
+
+	db := db.NewDb("folders")
+	defer db.Session.Close()
+
+	qry := bson.M{"id": id}
+	if strings.HasPrefix(req.URL.Path, "/i/") {
+		qry = bson.M{"files.id": id}
+	}
+	n, err := db.Collection.Find(qry).Count()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if n == 0 {
+		rw.WriteHeader(http.StatusNotFound)
+	} else {
+		sendIndex(rw)
+	}
+}
+
+func sendIndex(rw http.ResponseWriter) {
 	file, err := os.Open("public/index.html")
 	if err != nil {
 		log.Fatal(err)
@@ -25,33 +61,4 @@ func home(rw http.ResponseWriter) {
 	// rw.Header().Add("Content-Type", "text/html; charset=utf-8")
 	rw.WriteHeader(http.StatusOK)
 	io.Copy(rw, file)
-}
-
-func main() {
-	m := martini.Classic()
-
-	m.Get("/:id", func(rw http.ResponseWriter, req *http.Request, params martini.Params) {
-		id := params["id"]
-
-		if (WEB_ROUTES[id]) {
-			home(rw)
-			return
-		}
-
-		db := db.NewDb("folders")
-		defer db.Session.Close()
-		qry := db.Collection.Find(bson.M{"id": params["id"]})
-		n, err := qry.Count()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if n == 0 {
-			rw.WriteHeader(http.StatusNotFound)
-		} else {
-			home(rw)
-		}
-	})
-
-	log.Fatal(http.ListenAndServe("localhost:3001", m))
 }

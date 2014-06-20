@@ -63,11 +63,11 @@ func main() {
 	//*******************
 	// Upload / Download
 	//*******************
-	m.Post("/u/:folderId", routes.UploadFiles)
+	m.Post("/u/:id", routes.UploadFiles)
 	m.Get("/d/:id", routes.DownloadFolder)
 	// Download files
 	// https://github.com/visionmedia/express/blob/9bf1247716c1f43e2c31c96fc965387abfeae531/lib/utils.js#L161
-	m.Get("/d/:folderId/:fileId", routes.DownloadFiles)
+	m.Get("/d/i/:id", routes.DownloadFile)
 
 	log.Fatal(http.ListenAndServe("localhost:3000", m))
 }

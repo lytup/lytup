@@ -90,4 +90,9 @@ angular.module('lytup.controllers', [])
         });
       }
     }
+  ])
+  .controller('FileCtrl', ['$scope',
+    function($scope) {
+      console.log('File controller');
+    }
   ]);

@@ -50,11 +50,13 @@
 <div class="row grid">
   <div class="col-md-3 col-sm-4 col-xs-6 grid-item"
       ng-repeat="file in folder.files | orderBy:'-createdAt'">
-    <i class="fa fa-file-o"></i><br>
-    {{file.name}} ({{file.size | bytes}})
-    <div class="grid-item-center">
-      <input value="{{file.loaded}}" data-width="50" data-fgcolor="#45aeea"
-          data-bgcolor="#bee3f7" data-thickness=".1" ly-knob>
-    </div>
+    <a href="/i/{{file.id}}">
+      <i class="fa fa-file-o"></i><br>
+      {{file.name}} ({{file.size | bytes}})
+      <div class="grid-item-center">
+        <input value="{{file.loaded}}" data-width="50" data-fgcolor="#45aeea"
+            data-bgcolor="#bee3f7" data-thickness=".1" ly-knob>
+      </div>
+    </a>
   </div>
 </div>

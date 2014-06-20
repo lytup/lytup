@@ -33,7 +33,7 @@ func UpdateFolder(fol models.Folder, rw http.ResponseWriter, params martini.Para
 }
 
 func DownloadFolder(rw http.ResponseWriter, params martini.Params) {
-	log.Println("download folder")
+	log.Println("Download folder")
 	zw := zip.NewWriter(rw)
 	fol := models.FindFolderById(params["id"])
 

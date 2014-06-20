@@ -9,11 +9,11 @@ import (
 )
 
 type File struct {
-	Id   string `json:"id" bson:"id"`
-	Name string `json:"name" bson:"name"`
-	Size int64  `json:"size" bson:"size"`
-	Type string `json:"type" bson:"type"`
-	Loaded int `json:"loaded" bson:"loaded"`
+	Id        string    `json:"id" bson:"id"`
+	Name      string    `json:"name" bson:"name"`
+	Size      int64     `json:"size" bson:"size"`
+	Type      string    `json:"type" bson:"type"`
+	Loaded    int       `json:"loaded" bson:"loaded"`
 	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
 }
 
@@ -24,8 +24,8 @@ func (file *File) Create(folderId string) {
 	db := db.NewDb("folders")
 	defer db.Session.Close()
 	err := db.Collection.Update(bson.M{"id": folderId},
-			bson.M{"$set": bson.M{"updatedAt": time.Now()},
-				"$push": bson.M{"files": file}})
+		bson.M{"$set": bson.M{"updatedAt": time.Now()},
+			"$push": bson.M{"files": file}})
 	if err != nil {
 		panic(err)
 	}
@@ -35,22 +35,22 @@ func UpdateFile(folderId, fileId string, file *File) {
 	db := db.NewDb("folders")
 	defer db.Session.Close()
 	err := db.Collection.Update(bson.M{"id": folderId, "files.id": fileId},
-			bson.M{"$set": bson.M{"updatedAt": time.Now(),
-				"files.$.loaded": file.Loaded}})
+		bson.M{"$set": bson.M{"updatedAt": time.Now(),
+			"files.$.loaded": file.Loaded}})
 	if err != nil {
 		panic(err)
 	}
 }
 
-func FindFileById(folderId, fileId string) *File {
+func FindFileById(id string) (string, *File) {
 	db := db.NewDb("folders")
 	defer db.Session.Close()
 	fol := Folder{}
-	err := db.Collection.Find(bson.M{"id": folderId}).
-			Select(bson.M{"files": bson.M{"$elemMatch": bson.M{"id": fileId}}}).
-			One(&fol)
+	err := db.Collection.Find(bson.M{"files.id": id}).
+		Select(bson.M{"id": 1, "files.$": 1}).
+		One(&fol)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return fol.Files[0]
+	return fol.Id, fol.Files[0]
 }
