@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/go-martini/martini"
 	"github.com/labstack/lytup/server/models"
+	"github.com/martini-contrib/render"
 	"io"
 	"log"
 	"net/http"
@@ -14,6 +15,16 @@ import (
 const (
 	UPLOAD_DIR = "/tmp"
 )
+
+func CreateFile(params martini.Params, ren render.Render, file models.File) {
+	file.Create(params["id"])
+	ren.JSON(http.StatusCreated, file)
+}
+
+func UpdateFile(rw http.ResponseWriter, params martini.Params, file models.File) {
+	models.UpdateFile(params["folderId"], params["fileId"], &file)
+	rw.WriteHeader(http.StatusOK)
+}
 
 func UploadFiles(req *http.Request, rw http.ResponseWriter, params martini.Params) {
 	mr, err := req.MultipartReader()

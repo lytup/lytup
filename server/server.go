@@ -42,17 +42,28 @@ func main() {
 	}))
 
 	m.Get("/ws", websocket.Handler(wsHandler).ServeHTTP)
-	// Create folder
-	m.Post("/api/folders", binding.Bind(models.Folder{}), routes.SaveFolder)
-	// Get folders
+
+	//*********
+	// Folders
+	//*********
+	m.Post("/api/folders", binding.Bind(models.Folder{}), routes.CreateFolder)
 	m.Get("/api/folders", routes.FindFolders)
-	// Get folder
 	m.Get("/api/folders/:id", routes.FindFolderById)
-	// Upload files
+	m.Patch("/api/folders/:id", binding.Bind(models.Folder{}),
+			routes.UpdateFolder)
+
+	//*******
+	// Files
+	//*******
+	m.Post("/api/folders/:id/files", binding.Bind(models.File{}),
+			routes.CreateFile)
+	m.Patch("/api/folders/:folderId/files/:fileId",
+			binding.Bind(models.File{}), routes.UpdateFile)
+
+	//*******************
+	// Upload / Download
+	//*******************
 	m.Post("/u/:folderId", routes.UploadFiles)
-	// Update folder
-	m.Patch("/api/folders/:id", binding.Bind(models.Folder{}), routes.UpdateFolder)
-	// Download folder
 	m.Get("/d/:id", routes.DownloadFolder)
 	// Download files
 	// https://github.com/visionmedia/express/blob/9bf1247716c1f43e2c31c96fc965387abfeae531/lib/utils.js#L161

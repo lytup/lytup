@@ -12,8 +12,8 @@ import (
 	"path"
 )
 
-func SaveFolder(fol models.Folder, ren render.Render) {
-	fol.Save()
+func CreateFolder(fol models.Folder, ren render.Render) {
+	fol.Create()
 	ren.JSON(http.StatusCreated, fol)
 }
 

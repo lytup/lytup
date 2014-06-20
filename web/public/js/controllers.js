@@ -4,15 +4,11 @@ angular.module('lytup.controllers', [])
   .controller('Controller', ['$scope', '$location', '$routeParams', 'ngSocket', 'Restangular', '$upload',
     function($scope, $location, $routeParams, ngSocket, Restangular, $upload) {
       console.log("Lytup controller")
-      // var ws = ngSocket('ws://localhost:1431/ws');
-      //
-      // ws.onMessage(function(msg) {
-      //   console.log('message received', msg.data);
-      // });
-      //
-      // ws.send({
-      //   foo: 'bar'
-      // });
+      var ws = ngSocket('ws://localhost:1431/ws');
+
+      ws.onMessage(function(msg) {
+        console.log('message received', msg.data);
+      });
 
       // Get all folders
       $scope.folders = Restangular.all('folders').getList().$object;
@@ -31,18 +27,17 @@ angular.module('lytup.controllers', [])
 
         _.forEach(files, function(file) {
           var f = _.pick(file, 'name', 'size', 'type');
-          file.i = fol.files.push(f) - 1; // Store index for mapping later
+          var i = fol.files.push(f) - 1;
+          file.i =  i; // Store index for mapping later
+
+          // Create file
+          fol.files[i] = fol.post('files', f).$object;
         });
 
-        // Update folder
-        fol.patch({
-          'files': fol.files.slice(-files.length)
-        }).then(function() {
-          uploadFiles(files);
-        });
+        uploadFiles(files);
       };
 
-      function uploadFiles(files, mFiles) {
+      function uploadFiles(files) {
         var fol = $scope.folder;
         var n = 0;
 
@@ -51,12 +46,18 @@ angular.module('lytup.controllers', [])
             url: '/u/' + fol.id,
             file: file
           }).progress(function(evt) {
-            // var f = fol.files[l + i];
             var f = fol.files[file.i];
             f.loaded = Math.round(evt.loaded / evt.total * 100);
+            // Update file
+            if (f.loaded === 100) {
+              f.patch({loaded: 100});
+            }
           }).success(function() {
-            if (fol.files.length === ++n) {
-              console.log('Files uploaded');
+            if (files.length === ++n) {
+              // Update status
+              // fol.patch({
+              //   'status': 'UPLOADED'
+              // });
             }
           });
         });

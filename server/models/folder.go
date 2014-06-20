@@ -40,7 +40,7 @@ func FindFolderById(id string) *Folder {
 	return &fol
 }
 
-func (fol *Folder) Save() {
+func (fol *Folder) Create() {
 	fol.Id = uniuri.NewLen(5)
 	fol.Files = []*File{}
 	fol.CreatedAt = time.Now()
@@ -55,22 +55,14 @@ func (fol *Folder) Save() {
 }
 
 func UpdateFolder(id string, fol *Folder) {
-	db := db.NewDb("folders")
-	defer db.Session.Close()
-
 	fol.UpdatedAt = time.Now()
 
-	// Files
-	if fol.Files != nil {
-		for _, file := range fol.Files {
-			file.Id = "uniuri.NewLen(5)"
-			file.CreatedAt = time.Now()
-		}
-
-		err := db.Collection.Update(bson.M{"id": id}, bson.M{"$set": bson.M{"updatedAt": time.Now()}, "$pushAll": bson.M{"files": fol.Files}})
-		if err != nil {
-			panic(err)
-		}
+	db := db.NewDb("folders")
+	defer db.Session.Close()
+	err := db.Collection.Update(bson.M{"id": id},
+			bson.M{"$set": bson.M{"updatedAt": time.Now()}})
+	if err != nil {
+		panic(err)
 	}
 
 	// TODO: Update other fields on-demand basis
