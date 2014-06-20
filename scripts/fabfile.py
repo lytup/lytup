@@ -7,7 +7,7 @@ def sync_web():
 
 def build_server():
   with lcd('../server'):
-    local('GOARCH=amd64 GOOS=linux go build -o build/server')
+    local('GOOS=linux go build -o build/server')
 
 def deploy_server():
   build_server()
@@ -15,7 +15,7 @@ def deploy_server():
 
 def build_web():
   with lcd('../web'):
-    local('GOARCH=amd64 GOOS=linux go build -o build/web')
+    local('GOOS=linux go build -o build/web')
 
 def deploy_web():
   build_web()

@@ -20,6 +20,7 @@ angular.module('lytup', [
       });
 
       $routeProvider.when('/home', {
+        controller: 'HomeCtrl',
         templateUrl: 'partials/home.html'
       });
 

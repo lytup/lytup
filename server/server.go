@@ -50,15 +50,15 @@ func main() {
 	m.Get("/api/folders", routes.FindFolders)
 	m.Get("/api/folders/:id", routes.FindFolderById)
 	m.Patch("/api/folders/:id", binding.Bind(models.Folder{}),
-			routes.UpdateFolder)
+		routes.UpdateFolder)
 
 	//*******
 	// Files
 	//*******
 	m.Post("/api/folders/:id/files", binding.Bind(models.File{}),
-			routes.CreateFile)
+		routes.CreateFile)
 	m.Patch("/api/folders/:folderId/files/:fileId",
-			binding.Bind(models.File{}), routes.UpdateFile)
+		binding.Bind(models.File{}), routes.UpdateFile)
 
 	//*******************
 	// Upload / Download

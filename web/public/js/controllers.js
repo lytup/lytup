@@ -1,16 +1,25 @@
 'use strict';
 
 angular.module('lytup.controllers', [])
-  .controller('Controller', ['$scope', '$location', '$routeParams', 'ngSocket', 'Restangular', '$upload',
-    function($scope, $location, $routeParams, ngSocket, Restangular, $upload) {
+  .controller('Controller', [
+    '$scope',
+    'ngSocket',
+    function($scope, ngSocket) {
       console.log("Lytup controller")
       var ws = ngSocket('ws://localhost:1431/ws');
 
       ws.onMessage(function(msg) {
         console.log('message received', msg.data);
       });
+    }
+  ])
+  .controller('HomeCtrl', [
+    '$scope',
+    '$location',
+    'Restangular',
+    function($scope, $location, Restangular) {
+      console.log("Home controller");
 
-      // Get all folders
       $scope.folders = Restangular.all('folders').getList().$object;
       $scope.folder = {};
 
@@ -21,6 +30,17 @@ angular.module('lytup.controllers', [])
           $location.path(fol.id);
         });
       };
+    }
+  ])
+  .controller('FolderCtrl', [
+    '$scope',
+    '$routeParams',
+    'Restangular',
+    '$upload',
+    function($scope, $routeParams, Restangular, $upload) {
+      console.log("Folder controller");
+
+      $scope.folder = Restangular.one('folders', $routeParams.id).get().$object;
 
       $scope.addFiles = function(files) {
         var fol = $scope.folder;
@@ -28,7 +48,8 @@ angular.module('lytup.controllers', [])
         _.forEach(files, function(file) {
           var f = _.pick(file, 'name', 'size', 'type');
           var i = fol.files.push(f) - 1;
-          file.i =  i; // Store index for mapping later
+
+          file.i = i; // Store index for mapping later
 
           // Create file
           fol.files[i] = fol.post('files', f).$object;
@@ -36,40 +57,6 @@ angular.module('lytup.controllers', [])
 
         uploadFiles(files);
       };
-
-      function uploadFiles(files) {
-        var fol = $scope.folder;
-        var n = 0;
-
-        _.forEach(files, function(file, i) {
-          $upload.upload({
-            url: '/u/' + fol.id,
-            file: file
-          }).progress(function(evt) {
-            var f = fol.files[file.i];
-            f.loaded = Math.round(evt.loaded / evt.total * 100);
-            // Update file
-            if (f.loaded === 100) {
-              f.patch({loaded: 100});
-            }
-          }).success(function() {
-            if (files.length === ++n) {
-              // Update status
-              // fol.patch({
-              //   'status': 'UPLOADED'
-              // });
-            }
-          });
-        });
-      }
-    }
-  ]).controller('FolderCtrl', ['$scope', '$routeParams', 'Restangular',
-    function($scope, $routeParams, Restangular) {
-      console.log("Folder controller");
-
-      Restangular.one('folders', $routeParams.id).get().then(function(fol) {
-        _.assign($scope.folder, fol);
-      });
 
       $scope.fileIconClass = function(type) {
         return /image/.test(type) ? 'fa-file-image-o' :
@@ -82,5 +69,25 @@ angular.module('lytup.controllers', [])
           /zip/.test(type) ? 'fa-file-archive-o' :
           'fa-file-o';
       };
+
+      function uploadFiles(files) {
+        var fol = $scope.folder;
+
+        _.forEach(files, function(file, i) {
+          var f = fol.files[file.i];
+
+          $upload.upload({
+            url: '/u/' + fol.id,
+            file: file
+          }).progress(function(evt) {
+            f.loaded = Math.round(evt.loaded / evt.total * 100);
+          }).success(function() {
+            // Update file
+            f.patch({
+              loaded: 100
+            });
+          });
+        });
+      }
     }
   ]);
