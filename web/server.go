@@ -43,19 +43,19 @@ func home(req *http.Request, rw http.ResponseWriter, params martini.Params) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if n == 0 {
-		rw.WriteHeader(http.StatusNotFound)
-	} else {
+	if n != 0 {
 		sendIndex(rw)
+		return
 	}
+	rw.WriteHeader(http.StatusNotFound)
 }
 
 func sendIndex(rw http.ResponseWriter) {
 	file, err := os.Open("public/index.html")
+	defer file.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
 
 	// Go HTTP server puts Content-Type automatically
 	// rw.Header().Add("Content-Type", "text/html; charset=utf-8")

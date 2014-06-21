@@ -57,17 +57,19 @@ func main() {
 	//*******
 	m.Post("/api/folders/:id/files", binding.Bind(models.File{}),
 		routes.CreateFile)
-	m.Patch("/api/folders/:folderId/files/:fileId",
+	m.Get("/api/folders/:folId/files/:id", routes.FindFileById)
+	m.Get("/api/files/:id", routes.FindFileById)
+	m.Patch("/api/folders/:folId/files/:id",
 		binding.Bind(models.File{}), routes.UpdateFile)
 
 	//*******************
 	// Upload / Download
 	//*******************
 	m.Post("/u/:id", routes.UploadFiles)
-	m.Get("/d/:id", routes.DownloadFolder)
+	m.Get("/d/:id", routes.Download)
 	// Download files
 	// https://github.com/visionmedia/express/blob/9bf1247716c1f43e2c31c96fc965387abfeae531/lib/utils.js#L161
-	m.Get("/d/i/:id", routes.DownloadFile)
+	// m.Get("/d/i/:id", routes.DownloadFile)
 
 	log.Fatal(http.ListenAndServe("localhost:3000", m))
 }

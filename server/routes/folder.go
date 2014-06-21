@@ -3,9 +3,11 @@ package routes
 import (
 	"archive/zip"
 	"github.com/go-martini/martini"
+	"github.com/labstack/lytup/server/db"
 	"github.com/labstack/lytup/server/models"
 	"github.com/martini-contrib/render"
 	"io"
+	"labix.org/v2/mgo/bson"
 	"log"
 	"net/http"
 	"os"
@@ -32,10 +34,39 @@ func UpdateFolder(fol models.Folder, rw http.ResponseWriter, params martini.Para
 	rw.WriteHeader(http.StatusOK)
 }
 
-func DownloadFolder(rw http.ResponseWriter, params martini.Params) {
+func Download(rw http.ResponseWriter, params martini.Params) {
+	id := params["id"]
+
+	db := db.NewDb("folders")
+	defer db.Session.Close()
+
+	// Check if folder
+	n, err := db.Collection.Find(bson.M{"id": id}).Count()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if n != 0 {
+		downloadFolder(id, rw)
+		return
+	}
+
+	// Check if file
+	n, err = db.Collection.Find(bson.M{"files.id": id}).Count()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if n != 0 {
+		downloadFile(id, rw)
+		return
+	}
+
+	rw.WriteHeader(http.StatusNotFound)
+}
+
+func downloadFolder(id string, rw http.ResponseWriter) {
 	log.Println("Download folder")
 	zw := zip.NewWriter(rw)
-	fol := models.FindFolderById(params["id"])
+	fol := models.FindFolderById(id)
 
 	for _, file := range fol.Files {
 		fw, err := zw.Create(file.Name)
@@ -51,5 +82,20 @@ func DownloadFolder(rw http.ResponseWriter, params martini.Params) {
 		log.Fatal(err)
 	}
 
+	rw.WriteHeader(http.StatusOK)
+}
+
+func downloadFile(id string, rw http.ResponseWriter) {
+	folId, file := models.FindFileById(id)
+	folPath := path.Join(UPLOAD_DIR, folId)
+
+	f, err := os.Open(path.Join(folPath, file.Name))
+	defer f.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rw.Header().Set("Content-Disposition", "attachment; filename="+file.Name)
+	io.Copy(rw, f)
 	rw.WriteHeader(http.StatusOK)
 }

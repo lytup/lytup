@@ -1,1 +1,31 @@
-<h1>File information</h1>
+<div class="row file-panel">
+  <div class="col-md-3 menu-left">
+    <ul class="list-inline">
+      <li>
+        <button type="button" class="btn btn-default btn-cir"
+            bs-tooltip title="Share File">
+          <i class="fa fa-share fa-lg"></i>
+        </button>
+      </li>
+      <li>
+        <button type="button" class="btn btn-default btn-cir"
+            ly-copy data-clipboard-text="{{BASE_URI}}/{{file.id}}">
+          <i class="fa fa-link fa-lg"></i>
+        </button>
+      </li>
+    </ul>
+  </div>
+  <div class="col-md-6">
+  </div>
+  <div class="col-md-3 menu-right">
+    <ul class="list-inline">
+      <li>
+        <button type="button" class="btn btn-default btn-cir"
+          bs-tooltip title="Download" ly-download
+          data-uri="/d/{{file.id}}">
+          <i class="fa fa-download fa-lg"></i>
+        </button>
+      </li>
+    </ul>
+  </div>
+</div>

@@ -17,13 +17,13 @@ type File struct {
 	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
 }
 
-func (file *File) Create(folderId string) {
+func (file *File) Create(folId string) {
 	file.Id = uniuri.NewLen(5)
 	file.CreatedAt = time.Now()
 
 	db := db.NewDb("folders")
 	defer db.Session.Close()
-	err := db.Collection.Update(bson.M{"id": folderId},
+	err := db.Collection.Update(bson.M{"id": folId},
 		bson.M{"$set": bson.M{"updatedAt": time.Now()},
 			"$push": bson.M{"files": file}})
 	if err != nil {
@@ -31,10 +31,10 @@ func (file *File) Create(folderId string) {
 	}
 }
 
-func UpdateFile(folderId, fileId string, file *File) {
+func UpdateFile(folId, id string, file *File) {
 	db := db.NewDb("folders")
 	defer db.Session.Close()
-	err := db.Collection.Update(bson.M{"id": folderId, "files.id": fileId},
+	err := db.Collection.Update(bson.M{"id": folId, "files.id": id},
 		bson.M{"$set": bson.M{"updatedAt": time.Now(),
 			"files.$.loaded": file.Loaded}})
 	if err != nil {

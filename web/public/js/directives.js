@@ -28,7 +28,6 @@ angular.module('lytup.directives', [])
     }
   ])
   .directive('lyDownload', [
-
     function() {
       return {
         link: function(scope, elm, attrs) {
@@ -55,9 +54,7 @@ angular.module('lytup.directives', [])
       }
     }
   ])
-  .directive('bsTooltip', [
-
-    function() {
+  .directive('bsTooltip', [function() {
       return {
         link: function(scope, elm) {
           elm.tooltip();

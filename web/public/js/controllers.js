@@ -19,12 +19,11 @@ angular.module('lytup.controllers', [])
     'Restangular',
     function($scope, $location, Restangular) {
       console.log("Home controller");
-
       $scope.folders = Restangular.all('folders').getList().$object;
       $scope.folder = {};
 
       $scope.createFolder = function() {
-        Restangular.all('folders').post({}).then(function(fol) {
+        $scope.folders.post({}).then(function(fol) {
           $scope.folder = fol;
           $scope.folders.push(fol);
           $location.path(fol.id);
@@ -39,7 +38,6 @@ angular.module('lytup.controllers', [])
     '$upload',
     function($scope, $routeParams, Restangular, $upload) {
       console.log("Folder controller");
-
       $scope.folder = Restangular.one('folders', $routeParams.id).get().$object;
 
       $scope.addFiles = function(files) {
@@ -91,8 +89,12 @@ angular.module('lytup.controllers', [])
       }
     }
   ])
-  .controller('FileCtrl', ['$scope',
-    function($scope) {
+  .controller('FileCtrl', [
+  '$scope',
+  '$routeParams',
+  'Restangular',
+    function($scope, $routeParams, Restangular) {
       console.log('File controller');
+      $scope.file = Restangular.one('files', $routeParams.id).get().$object;
     }
   ]);
