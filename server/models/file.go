@@ -3,8 +3,11 @@ package models
 import (
 	"github.com/dchest/uniuri"
 	"github.com/labstack/lytup/server/db"
+	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 	"log"
+	"os"
+	"path"
 	"time"
 )
 
@@ -31,6 +34,20 @@ func (file *File) Create(folId string) {
 	}
 }
 
+func FindFileById(id string) (string, *File) {
+	db := db.NewDb("folders")
+	defer db.Session.Close()
+	fol := Folder{}
+	err := db.Collection.Find(bson.M{"files.id": id}).
+		Select(bson.M{"id": 1, "files": bson.M{"$elemMatch": bson.M{"id": id}}}).
+		One(&fol)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return fol.Id, fol.Files[0]
+}
+
 func UpdateFile(folId, id string, file *File) {
 	db := db.NewDb("folders")
 	defer db.Session.Close()
@@ -42,15 +59,26 @@ func UpdateFile(folId, id string, file *File) {
 	}
 }
 
-func FindFileById(id string) (string, *File) {
+func DeleteFile(folId, id string) {
 	db := db.NewDb("folders")
 	defer db.Session.Close()
 	fol := Folder{}
-	err := db.Collection.Find(bson.M{"files.id": id}).
-		Select(bson.M{"id": 1, "files.$": 1}).
-		One(&fol)
+	_, err := db.Collection.Find(bson.M{"id": folId, "files.id": id}).
+		Select(bson.M{"files": bson.M{"$elemMatch": bson.M{"id": id}}}).
+		Apply(mgo.Change{Update: bson.M{"$pull": bson.M{"files": bson.M{"id": id}}}}, &fol)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-	return fol.Id, fol.Files[0]
+
+	log.Println(fol)
+
+	file := fol.Files[0]
+
+	log.Println(path.Join("/tmp", folId, file.Name))
+
+	// Delete file from file system
+	err = os.Remove(path.Join("/tmp", folId, file.Name)) // TODO: Read from config
+	if err != nil {
+		panic(err)
+	}
 }

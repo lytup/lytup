@@ -47,16 +47,37 @@
   </span>
 </div>
 
-<div class="row grid">
-  <div class="col-md-3 col-sm-4 col-xs-6 grid-item"
+<div class="row">
+  <div class="col-md-3 col-sm-4 col-xs-6"
       ng-repeat="file in folder.files | orderBy:'-createdAt'">
-    <a href="/i/{{file.id}}">
-      <i class="fa fa-file-o"></i><br>
-      {{file.name}} ({{file.size | bytes}})
-      <div class="grid-item-center">
-        <input value="{{file.loaded}}" data-width="50" data-fgcolor="#45aeea"
-            data-bgcolor="#bee3f7" data-thickness=".1" ly-knob>
+    <div class="grid-item">
+      <div class="grid-item-action">
+        <ul class="list-inline">
+          <li>
+            <a href="" ly-download data-uri="/d/{{file.id}}">
+              <i class="fa fa-download fa-lg"></i>
+            </a>
+          </li>
+          <li>
+            <a href="" ng-click="deleteFile(file, -($index + 1))">
+              <i class="fa fa-trash-o fa-lg"></i>
+            </a>
+          </li>
+        </ul>
       </div>
+      <!-- <a href="/i/{{file.id}}"> -->
+        <div class="grid-item-holder">
+          <div class="grid-item-progress">
+            <input value="{{file.loaded}}" ly-knob data-width="50"
+                data-height="50" data-fgcolor="#45aeea"
+                data-bgcolor="#bee3f7" data-thickness=".1">
+          </div>
+          <div class="grid-item-info">
+            <h5>{{file.name}} <small>{{file.size | bytes}}</small></h5>
+          </div>
+        </div>
+      <!-- </a> -->
+    </div>
     </a>
   </div>
 </div>

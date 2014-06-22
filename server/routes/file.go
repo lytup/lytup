@@ -31,6 +31,11 @@ func UpdateFile(rw http.ResponseWriter, params martini.Params, file models.File)
 	rw.WriteHeader(http.StatusOK)
 }
 
+func DeleteFile(rw http.ResponseWriter, params martini.Params) {
+	models.DeleteFile(params["folId"], params["id"])
+	rw.WriteHeader(http.StatusOK)
+}
+
 func UploadFiles(req *http.Request, rw http.ResponseWriter, params martini.Params) {
 	log.Println("Upload files")
 	mr, err := req.MultipartReader()

@@ -51,6 +51,7 @@ func main() {
 	m.Get("/api/folders/:id", routes.FindFolderById)
 	m.Patch("/api/folders/:id", binding.Bind(models.Folder{}),
 		routes.UpdateFolder)
+	m.Delete("/api/folders/:id", routes.DeleteFolder)
 
 	//*******
 	// Files
@@ -61,6 +62,7 @@ func main() {
 	m.Get("/api/files/:id", routes.FindFileById)
 	m.Patch("/api/folders/:folId/files/:id",
 		binding.Bind(models.File{}), routes.UpdateFile)
+	m.Delete("/api/folders/:folId/files/:id", routes.DeleteFile)
 
 	//*******************
 	// Upload / Download

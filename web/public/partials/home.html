@@ -23,13 +23,30 @@
 </div>
 
 <div class="row grid">
-  <div class="col-md-3 col-sm-4 col-xs-6 grid-item"
+  <div class="col-md-3 col-sm-4 col-xs-6"
       ng-repeat="fol in folders | orderBy:'-createdAt'">
-    <a href="/{{fol.id}}">
-      <i class="fa fa-folder-o"></i>
-      <div class="grid-item-center">
-        <span class="badge">{{fol.files.length}}</span>
+    <div class="grid-item">
+      <div class="grid-item-action">
+        <ul class="list-inline">
+          <li>
+            <a href="" ly-download data-uri="/d/{{fol.id}}">
+              <i class="fa fa-download fa-lg"></i>
+            </a>
+          </li>
+          <li>
+            <a href="" ng-click="deleteFolder(fol, -($index + 1))">
+              <i class="fa fa-trash-o fa-lg"></i>
+            </a>
+          </li>
+        </ul>
       </div>
-    </a>
+      <a href="/{{fol.id}}">
+        <div class="grid-item-holder">
+          <div class="grid-item-info">
+            <h5>{{fol.id}} <small>{{fol.files.length}} Files</small></h5>
+          </div>
+        </div>
+      </a>
+    </div>
   </div>
 </div>

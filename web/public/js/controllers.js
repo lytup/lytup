@@ -29,6 +29,12 @@ angular.module('lytup.controllers', [])
           $location.path(fol.id);
         });
       };
+
+      $scope.deleteFolder = function(fol, i) {
+        fol.remove().then(function() {
+          $scope.folders.splice(i, 1);
+        });
+      };
     }
   ])
   .controller('FolderCtrl', [
@@ -47,7 +53,7 @@ angular.module('lytup.controllers', [])
           var f = _.pick(file, 'name', 'size', 'type');
           var i = fol.files.push(f) - 1;
 
-          file.i = i; // Store index for mapping later
+          file.i = i; // Store the index for later user
 
           // Create file
           fol.files[i] = fol.post('files', f).$object;
@@ -66,6 +72,12 @@ angular.module('lytup.controllers', [])
           /pdf/.test(type) ? 'fa-file-pdf-o' :
           /zip/.test(type) ? 'fa-file-archive-o' :
           'fa-file-o';
+      };
+
+      $scope.deleteFile = function(file, i) {
+        $scope.folder.one('files', file.id).remove().then(function() {
+          $scope.folder.files.splice(i, 1);
+        });
       };
 
       function uploadFiles(files) {

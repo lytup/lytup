@@ -7,6 +7,6 @@
     "gulp-less": "^1.2.3"
   },
   "dependencies": {
-    "gulp": "^3.8.0"
+    "gulp": "^3.8.1"
   }
 }

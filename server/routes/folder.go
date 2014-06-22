@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 )
 
 func CreateFolder(fol models.Folder, ren render.Render) {
@@ -31,6 +32,11 @@ func FindFolderById(rw http.ResponseWriter, params martini.Params, ren render.Re
 
 func UpdateFolder(fol models.Folder, rw http.ResponseWriter, params martini.Params) {
 	models.UpdateFolder(params["id"], &fol)
+	rw.WriteHeader(http.StatusOK)
+}
+
+func DeleteFolder(rw http.ResponseWriter, params martini.Params) {
+	models.DeleteFolder(params["id"])
 	rw.WriteHeader(http.StatusOK)
 }
 
@@ -71,15 +77,22 @@ func downloadFolder(id string, rw http.ResponseWriter) {
 	for _, file := range fol.Files {
 		fw, err := zw.Create(file.Name)
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
+
 		f, err := os.Open(path.Join(UPLOAD_DIR, fol.Id, file.Name))
+		if err != nil {
+			log.Panic(err)
+		}
+		defer f.Close()
+
+		rw.Header().Set("Content-Disposition", "attachment; filename="+fol.Id)
 		io.Copy(fw, f)
 	}
 
 	err := zw.Close()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	rw.WriteHeader(http.StatusOK)
@@ -90,12 +103,14 @@ func downloadFile(id string, rw http.ResponseWriter) {
 	folPath := path.Join(UPLOAD_DIR, folId)
 
 	f, err := os.Open(path.Join(folPath, file.Name))
-	defer f.Close()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
+	defer f.Close()
 
-	rw.Header().Set("Content-Disposition", "attachment; filename="+file.Name)
+	rw.Header().Set("Content-Disposition", "attachment; filename='"+file.Name+"'")
+	rw.Header().Set("Content-Length", strconv.FormatInt(file.Size, 10))
 	io.Copy(rw, f)
+
 	rw.WriteHeader(http.StatusOK)
 }

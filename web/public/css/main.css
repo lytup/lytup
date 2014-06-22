@@ -3092,28 +3092,62 @@ body {
   text-align: right;
 }
 .home-panel,
-.folder-panel {
+.folder-panel,
+.file-panel {
   margin-bottom: 20px;
 }
-.grid {
+/* .grid {
   text-align: center;
 }
+
 .grid-item {
   position: relative;
 }
-.grid-item i {
-  color: #999;
-  font-size: 12em;
+ */
+.grid a {
+  text-decoration: none;
 }
-.grid-item-center {
+.grid-item {
+  /* position: relative; */
+  height: 200px;
+  width: 200px;
+  margin-bottom: 20px;
+  box-shadow: 6px 6px 3px #888;
+  background: #fff;
+}
+.grid-item-action {
+  padding: 5px;
+  height: 40px;
+  width: 100%;
+  text-align: right;
+}
+.grid-item-action ul {
+  display: none;
+}
+.grid-item-action i {
+  color: #555555;
+}
+.grid-item-holder {
+  position: relative;
+  height: 160px;
+  width: 100%;
+  color: #000;
+}
+.grid-item-info {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 50px;
-  height: 50px;
-  margin-top: -25px;
-  margin-left: -25px;
-  line-height: 50px;
+  bottom: 0;
+  width: 100%;
+  padding: 5px;
+  text-align: center;
+}
+.grid-item-progress {
+  position: absolute;
+  bottom: 55px;
+  width: 100%;
+  text-align: center;
+}
+.grid-item:hover .grid-item-action ul {
+  display: block;
 }
 .social-icon {
   text-align: right;
@@ -3135,11 +3169,16 @@ body {
   color: #000;
 }
 .footer {
+  display: table;
   position: absolute;
   bottom: 0;
-  width: 100%;
   height: 60px;
+  width: 100%;
   background-color: #f5f5f5;
+}
+.footer .container {
+  display: table-cell;
+  vertical-align: middle;
 }
 /* ========
   AngularJS
@@ -3171,8 +3210,8 @@ body {
   display: block;
 }
 .btn-cir {
-  width: 50px;
   height: 50px;
+  width: 50px;
   line-height: 50px;
   border-radius: 50%;
   padding: 0;
