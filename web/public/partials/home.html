@@ -1,5 +1,5 @@
 <div class="row home-panel">
-  <div class="col-md-3 menu-left">
+  <div class="col-md-4 col-xs-6 menu-left">
     <ul class="list-inline">
       <li>
         <button type="button" class="btn btn-default btn-cir"
@@ -9,9 +9,8 @@
       </li>
     </ul>
   </div>
-  <div class="col-md-6">
-  </div>
-  <div class="col-md-3 menu-right">
+  <div class="col-md-4"></div>
+  <div class="col-md-4 col-xs-6 menu-right">
     <ul class="list-inline">
       <li>
         <button type="button" class="btn btn-primary" ng-click="createFolder()">
@@ -23,9 +22,9 @@
 </div>
 
 <div class="row grid">
-  <div class="col-md-3 col-sm-4 col-xs-6"
+  <div class="col-md-3 col-sm-4 col-xs-12"
       ng-repeat="fol in folders | orderBy:'-createdAt'">
-    <div class="grid-item">
+    <div class="center-block grid-item">
       <div class="grid-item-action">
         <ul class="list-inline">
           <li>

@@ -1,5 +1,5 @@
 <div class="row folder-panel">
-  <div class="col-md-3 menu-left">
+  <div class="col-md-4 col-xs-6 menu-left">
     <ul class="list-inline">
       <li>
         <button type="button" class="btn btn-default btn-cir"
@@ -15,9 +15,8 @@
       </li>
     </ul>
   </div>
-  <div class="col-md-6">
-  </div>
-  <div class="col-md-3 menu-right">
+  <div class="col-md-4"></div>
+  <div class="col-md-4 col-xs-6 menu-right">
     <ul class="list-inline">
       <li>
         <div class="btn btn-default btn-file btn-cir"
@@ -48,9 +47,9 @@
 </div>
 
 <div class="row">
-  <div class="col-md-3 col-sm-4 col-xs-6"
+  <div class="col-md-3 col-sm-4 col-xs-12"
       ng-repeat="file in folder.files | orderBy:'-createdAt'">
-    <div class="grid-item">
+    <div class="center-block grid-item">
       <div class="grid-item-action">
         <ul class="list-inline">
           <li>

@@ -65,16 +65,32 @@ body {
     }
   }
   .features {
-    margin-top: 50px;
-    max-width: 500px;
-    font-size: 16px;
+    margin-top: 48px;
+    max-width: 480px;
+    .lead {
+      font-size: @font-size-h4;
+    }
     i {
       color: green;
     }
   }
   .get-started {
-    margin-top: 50px;
+    margin-top: 48px;
     text-align: center;
+  }
+  @media (max-width: @screen-xs-max) {
+    margin-top: 24px;
+    .slogan {
+      h1 {
+        font-size: @font-size-h1;
+      }
+    }
+    .features {
+      margin-top: 24px;
+      .lead {
+        font-size: @font-size-h6;
+      }
+    }
   }
 }
 
@@ -124,14 +140,14 @@ body {
     display: none;
   }
   padding: 5px;
-  height: 40px;
+  height: 20%;
   width: 100%;
   text-align: right;
 };
 
 .grid-item-holder {
   position: relative;
-  height: 160px;
+  height: 80%;
   width: 100%;
   color: #000;
 }
@@ -146,7 +162,7 @@ body {
 
 .grid-item-progress {
   position: absolute;
-  bottom: 55px;
+  bottom: 37.5%;
   width: 100%;
   text-align: center;
 }
@@ -201,6 +217,7 @@ body {
   display: none !important;
 }
  */
+
 /* =================
   Override Bootstrap
   ================== */
