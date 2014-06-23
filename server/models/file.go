@@ -70,11 +70,7 @@ func DeleteFile(folId, id string) {
 		panic(err)
 	}
 
-	log.Println(fol)
-
 	file := fol.Files[0]
-
-	log.Println(path.Join("/tmp", folId, file.Name))
 
 	// Delete file from file system
 	err = os.Remove(path.Join("/tmp", folId, file.Name)) // TODO: Read from config

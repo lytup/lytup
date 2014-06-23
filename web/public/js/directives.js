@@ -34,8 +34,9 @@ angular.module('lytup.directives', [])
       return {
         link: function(scope, elm, attrs) {
           var iframe = $('<iframe>').hide().appendTo(elm);
-          elm.on('click', function() {
+          elm.on('click', function(evt) {
             iframe.attr('src', attrs.uri);
+            event.preventDefault();
           });
         }
       };

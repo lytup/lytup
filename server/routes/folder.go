@@ -94,8 +94,6 @@ func downloadFolder(id string, rw http.ResponseWriter) {
 	if err != nil {
 		log.Panic(err)
 	}
-
-	rw.WriteHeader(http.StatusOK)
 }
 
 func downloadFile(id string, rw http.ResponseWriter) {
@@ -111,6 +109,4 @@ func downloadFile(id string, rw http.ResponseWriter) {
 	rw.Header().Set("Content-Disposition", "attachment; filename='"+file.Name+"'")
 	rw.Header().Set("Content-Length", strconv.FormatInt(file.Size, 10))
 	io.Copy(rw, f)
-
-	rw.WriteHeader(http.StatusOK)
 }
