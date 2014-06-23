@@ -33,7 +33,6 @@
 /* ===================
    Browse happy prompt
    =================== */
-
 .browse-happy {
   margin: 0.2em 0;
   background: #ccc;
@@ -100,16 +99,10 @@ body {
 .folder-panel,
 .file-panel {
   margin-bottom: 20px;
+  .btn:focus {
+    outline: none;
+  }
 }
-
-/* .grid {
-  text-align: center;
-}
-
-.grid-item {
-  position: relative;
-}
- */
 
 .grid {
   a {
@@ -134,9 +127,6 @@ body {
   height: 40px;
   width: 100%;
   text-align: right;
-  i {
-    color: lighten(#000, 33.5%);
-  }
 };
 
 .grid-item-holder {
@@ -214,7 +204,6 @@ body {
 /* =================
   Override Bootstrap
   ================== */
-
 .btn-file {
     position: relative;
     overflow: hidden;
@@ -242,5 +231,11 @@ body {
   line-height: 50px;
   border-radius: 50%;
   padding: 0;
+  background: transparent;
+}
+
+.btn-cir:hover,
+.btn-cir:focus,
+.btn-cir:active {
   background: transparent;
 }

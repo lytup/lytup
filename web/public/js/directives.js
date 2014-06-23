@@ -8,7 +8,9 @@ angular.module('lytup.directives', [])
         link: function(scope, elm) {
           var clip = new ZeroClipboard(elm);
 
-          elm.tooltip();
+          elm.tooltip({
+            trigger: 'hover'
+          });
 
           elm.on('mouseover', function() {
             elm.attr('data-original-title', 'Copy Link')
@@ -57,7 +59,9 @@ angular.module('lytup.directives', [])
   .directive('bsTooltip', [function() {
       return {
         link: function(scope, elm) {
-          elm.tooltip();
+          elm.tooltip({
+            trigger: 'hover'
+          });
         }
       };
     }

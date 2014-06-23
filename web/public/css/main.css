@@ -3096,14 +3096,11 @@ body {
 .file-panel {
   margin-bottom: 20px;
 }
-/* .grid {
-  text-align: center;
+.home-panel .btn:focus,
+.folder-panel .btn:focus,
+.file-panel .btn:focus {
+  outline: none;
 }
-
-.grid-item {
-  position: relative;
-}
- */
 .grid a {
   text-decoration: none;
 }
@@ -3123,9 +3120,6 @@ body {
 }
 .grid-item-action ul {
   display: none;
-}
-.grid-item-action i {
-  color: #555555;
 }
 .grid-item-holder {
   position: relative;
@@ -3215,5 +3209,10 @@ body {
   line-height: 50px;
   border-radius: 50%;
   padding: 0;
+  background: transparent;
+}
+.btn-cir:hover,
+.btn-cir:focus,
+.btn-cir:active {
   background: transparent;
 }

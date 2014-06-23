@@ -29,12 +29,14 @@
       <div class="grid-item-action">
         <ul class="list-inline">
           <li>
-            <a href="" ly-download data-uri="/d/{{fol.id}}">
+            <a href="" ly-download data-uri="/d/{{fol.id}}" bs-tooltip
+                title="Download">
               <i class="fa fa-download fa-lg"></i>
             </a>
           </li>
           <li>
-            <a href="" ng-click="deleteFolder(fol, -($index + 1))">
+            <a href="" ng-click="deleteFolder(fol, -($index + 1))" bs-tooltip
+                title="Delete">
               <i class="fa fa-trash-o fa-lg"></i>
             </a>
           </li>

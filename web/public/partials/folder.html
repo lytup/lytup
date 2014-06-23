@@ -54,12 +54,14 @@
       <div class="grid-item-action">
         <ul class="list-inline">
           <li>
-            <a href="" ly-download data-uri="/d/{{file.id}}">
+            <a href="" ly-download data-uri="/d/{{file.id}}" bs-tooltip
+                title="Download">
               <i class="fa fa-download fa-lg"></i>
             </a>
           </li>
           <li>
-            <a href="" ng-click="deleteFile(file, -($index + 1))">
+            <a href="" ng-click="deleteFile(file, -($index + 1))" bs-tooltip
+                title="Delete">
               <i class="fa fa-trash-o fa-lg"></i>
             </a>
           </li>
@@ -67,7 +69,7 @@
       </div>
       <!-- <a href="/i/{{file.id}}"> -->
         <div class="grid-item-holder">
-          <div class="grid-item-progress">
+          <div class="grid-item-progress" ng-hide="file.loaded === 100">
             <input value="{{file.loaded}}" ly-knob data-width="50"
                 data-height="50" data-fgcolor="#45aeea"
                 data-bgcolor="#bee3f7" data-thickness=".1">
