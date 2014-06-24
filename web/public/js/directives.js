@@ -35,7 +35,7 @@ angular.module('lytup.directives', [])
         link: function(scope, elm, attrs) {
           var iframe = $('<iframe>').hide().appendTo(elm);
           elm.on('click', function(evt) {
-            iframe.attr('src', attrs.uri);
+            iframe.attr('src', attrs.href);
             event.preventDefault();
           });
         }
@@ -52,6 +52,19 @@ angular.module('lytup.directives', [])
 
           attrs.$observe('value', function(val) {
             elm.val(val).trigger('change');
+          });
+        }
+      }
+    }
+  ])
+  .directive('lyFromNow', [
+    function() {
+      return {
+        link: function(scope, elm, attrs) {
+          attrs.$observe('date', function(val) {
+            if (val) {
+              elm.text(moment(attrs.date).fromNow());
+            }
           });
         }
       }

@@ -3104,6 +3104,9 @@ body {
 .menu-left {
   text-align: left;
 }
+.menu-center {
+  text-align: center;
+}
 .menu-right {
   text-align: right;
 }

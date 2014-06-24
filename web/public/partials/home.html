@@ -9,12 +9,14 @@
       </li>
     </ul>
   </div>
-  <div class="col-md-4"></div>
+  <div class="col-md-4 menu-center">
+    <h4>{{folders.length}} FOLDERS</h4>
+  </div>
   <div class="col-md-4 col-xs-6 menu-right">
     <ul class="list-inline">
       <li>
         <button type="button" class="btn btn-primary" ng-click="createFolder()">
-          <i class="fa fa-folder-o fa-lg"></i> New Folder
+          <i class="fa fa-plus"></i> New Folder
         </button>
       </li>
     </ul>
@@ -28,8 +30,7 @@
       <div class="grid-item-action">
         <ul class="list-inline">
           <li>
-            <a href="/d/{{fol.id}}" ly-download data-uri="/d/{{fol.id}}"
-                bs-tooltip title="Download">
+            <a ng-href="/d/{{fol.id}}" ly-download bs-tooltip title="Download">
               <i class="fa fa-download fa-lg"></i>
             </a>
           </li>
@@ -41,7 +42,7 @@
           </li>
         </ul>
       </div>
-      <a href="/{{fol.id}}">
+      <a ng-href="/{{fol.id}}">
         <div class="grid-item-holder">
           <div class="grid-item-info">
             <h5>{{fol.id}} <small>{{fol.files.length}} Files</small></h5>

@@ -15,7 +15,16 @@
       </li>
     </ul>
   </div>
-  <div class="col-md-4"></div>
+  <div class="col-md-4 menu-center">
+    <h4>
+      {{folder.files.length}} FILES
+      <small ng-show="folder.files.length">
+        expires
+        <span class="text-danger" ly-from-now data-date="{{folder.expiresAt}}">
+        </span>
+      </small>
+    </h4>
+  </div>
   <div class="col-md-4 col-xs-6 menu-right">
     <ul class="list-inline">
       <li>
@@ -26,11 +35,10 @@
         </div>
       </li>
       <li>
-        <button type="button" class="btn btn-default btn-cir"
-          bs-tooltip title="Download" ly-download
-          data-uri="/d/{{folder.id}}">
+        <a ng-href="/d/{{folder.id}}" class="btn btn-default btn-cir"
+          bs-tooltip title="Download" ly-download>
           <i class="fa fa-download fa-lg"></i>
-        </button>
+        </a>
       </li>
     </ul>
   </div>
@@ -53,8 +61,7 @@
       <div class="grid-item-action">
         <ul class="list-inline">
           <li>
-            <a href="/d/{{file.id}}" ly-download data-uri="/d/{{file.id}}"
-                bs-tooltip title="Download">
+            <a ng-href="/d/{{file.id}}" ly-download bs-tooltip title="Download">
               <i class="fa fa-download fa-lg"></i>
             </a>
           </li>
@@ -66,7 +73,7 @@
           </li>
         </ul>
       </div>
-      <!-- <a href="/i/{{file.id}}"> -->
+      <!-- <a ng-href="/i/{{file.id}}"> -->
         <div class="grid-item-holder">
           <div class="grid-item-progress" ng-hide="file.loaded === 100">
             <input value="{{file.loaded}}" ly-knob data-width="50"

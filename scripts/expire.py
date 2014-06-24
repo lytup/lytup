@@ -11,7 +11,7 @@ client = MongoClient('mongodb://localhost')
 db = client.lytup
 
 qry = {
-  'expiresAt': {'$lt': datetime.utcnow()},
+  'expiresAt': {'$lt': datetime.now()},
   'status': {'$ne': 'EXPIRED'}
 }
 folders = db.folders.find(qry)

@@ -11,6 +11,10 @@ angular.module('lytup.controllers', [])
       ws.onMessage(function(msg) {
         console.log('message received', msg.data);
       });
+
+      $scope.expiresIn = function(date) {
+        return moment(date).fromNow();
+      };
     }
   ])
   .controller('HomeCtrl', [
