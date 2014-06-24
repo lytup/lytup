@@ -9,12 +9,10 @@ import (
 	"time"
 )
 
-// TODO: move status to enum like structure
 type Folder struct {
 	Id        string    `json:"id" bson:"id"`
 	Name      string    `json:"name" bson:"name"`
 	Files     []*File   `json:"files" bson:"files"`
-	Status    string    `json:"status" bson:"status"`
 	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt" bson:"updatedAt"`
 	ExpiresAt time.Time `json:"expiresAt" bson:"expiresAt"`
@@ -24,7 +22,7 @@ func (fol *Folder) Create() {
 	fol.Id = uniuri.NewLen(5)
 	fol.Files = []*File{}
 	fol.CreatedAt = time.Now()
-	fol.ExpiresAt = fol.CreatedAt.Add(24 * time.Hour)
+	fol.ExpiresAt = fol.CreatedAt.Add(4 * time.Hour)
 
 	db := db.NewDb("folders")
 	defer db.Session.Close()

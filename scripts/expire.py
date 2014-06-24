@@ -10,22 +10,16 @@ UPLOAD_DIR = '/tmp'
 client = MongoClient('mongodb://localhost')
 db = client.lytup
 
-qry = {
-  'expiresAt': {'$lt': datetime.now()},
-  'status': {'$ne': 'EXPIRED'}
-}
-folders = db.folders.find(qry)
+# Delete from database
+folder = db.folders.find_and_modify(
+  query={'expiresAt': {'$lt': datetime.utcnow()}},
+  remove=True
+)
 
-# Delete expired folders
-for fol in folders:
-  fol_path = os.path.join(UPLOAD_DIR, fol['id'])
-  print 'Deleting folder ' + fol_path
+# Delete from file system
+if folder is not None:
+  print 'Delete folder {0}'.format(folder['id']) 
   try:
-    shutil.rmtree(os.path.join(UPLOAD_DIR, fol_path))
-    # Update folder status
-    db.folders.update({'id': fol['id']}, {'$set': {'status': 'EXPIRED'}})
+    shutil.rmtree(os.path.join(UPLOAD_DIR, folder['id']))
   except OSError, err:
     print err
-
-# Delete from database
-db.folders.remove(qry)
