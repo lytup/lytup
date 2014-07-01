@@ -1,38 +1,5 @@
-// Core variables and mixins
 @import "../bower_components/bootstrap/less/variables.less";
-@import "../bower_components/bootstrap/less/mixins.less";
 
-// Reset
-@import "../bower_components/bootstrap/less/normalize.less";
-@import "../bower_components/bootstrap/less/print.less";
-
-// Core CSS
-@import "../bower_components/bootstrap/less/scaffolding.less";
-@import "../bower_components/bootstrap/less/type.less";
-@import "../bower_components/bootstrap/less/grid.less";
-@import "../bower_components/bootstrap/less/tables.less";
-@import "../bower_components/bootstrap/less/forms.less";
-@import "../bower_components/bootstrap/less/buttons.less";
-
-// Components
-@import "../bower_components/bootstrap/less/navbar.less";
-
-// Components w/ JavaScript
-@import "../bower_components/bootstrap/less/tooltip.less";
-
-// Utilities
-@import "../bower_components/bootstrap/less/utilities.less";
-@import "../bower_components/bootstrap/less/responsive-utilities.less";
-
-@navbar-inverse-bg: #f26f70;
-@navbar-inverse-link-color: #fff;
-@border-radius-base: 0;
-@border-radius-large: 0;
-@border-radius-small: 0;
-
-/* ===================
-   Browse happy prompt
-   =================== */
 .browse-happy {
   margin: 0.2em 0;
   background: #ccc;
@@ -131,7 +98,6 @@ body {
 }
 
 .grid-item {
-  /* position: relative; */
   height: 200px;
   width: 200px;
   margin-bottom: 20px;
@@ -162,6 +128,10 @@ body {
   width: 100%;
   padding: 5px;
   text-align: center;
+  h5 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .grid-item-progress {
@@ -221,9 +191,6 @@ body {
 }
  */
 
-/* =================
-  Override Bootstrap
-  ================== */
 .btn-file {
     position: relative;
     overflow: hidden;

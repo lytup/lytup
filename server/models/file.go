@@ -5,7 +5,6 @@ import (
 	"github.com/labstack/lytup/server/db"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
-	"log"
 	"os"
 	"path"
 	"time"
@@ -42,16 +41,16 @@ func FindFileById(id string) (string, *File) {
 		Select(bson.M{"id": 1, "files": bson.M{"$elemMatch": bson.M{"id": id}}}).
 		One(&fol)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	return fol.Id, fol.Files[0]
 }
 
-func UpdateFile(folId, id string, file *File) {
+func UpdateFile(folId, fileId string, file *File) {
 	db := db.NewDb("folders")
 	defer db.Session.Close()
-	err := db.Collection.Update(bson.M{"id": folId, "files.id": id},
+	err := db.Collection.Update(bson.M{"id": folId, "files.id": fileId},
 		bson.M{"$set": bson.M{"updatedAt": time.Now(),
 			"files.$.loaded": file.Loaded}})
 	if err != nil {
@@ -59,13 +58,13 @@ func UpdateFile(folId, id string, file *File) {
 	}
 }
 
-func DeleteFile(folId, id string) {
+func DeleteFile(folId, fileId string) {
 	db := db.NewDb("folders")
 	defer db.Session.Close()
 	fol := Folder{}
-	_, err := db.Collection.Find(bson.M{"id": folId, "files.id": id}).
-		Select(bson.M{"files": bson.M{"$elemMatch": bson.M{"id": id}}}).
-		Apply(mgo.Change{Update: bson.M{"$pull": bson.M{"files": bson.M{"id": id}}}}, &fol)
+	_, err := db.Collection.Find(bson.M{"id": folId, "files.id": fileId}).
+		Select(bson.M{"files": bson.M{"$elemMatch": bson.M{"id": fileId}}}).
+		Apply(mgo.Change{Update: bson.M{"$pull": bson.M{"files": bson.M{"id": fileId}}}}, &fol)
 	if err != nil {
 		panic(err)
 	}

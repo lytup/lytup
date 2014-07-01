@@ -10,19 +10,20 @@ import (
 )
 
 type Folder struct {
-	Id        string    `json:"id" bson:"id"`
-	Name      string    `json:"name" bson:"name"`
-	Files     []*File   `json:"files" bson:"files"`
-	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt" bson:"updatedAt"`
-	ExpiresAt time.Time `json:"expiresAt" bson:"expiresAt"`
+	Id        string        `json:"id" bson:"id"`
+	Name      string        `json:"name" bson:"name"`
+	Files     []*File       `json:"files" bson:"files"`
+	UserId    bson.ObjectId `json:"userId" bson:"userId"`
+	CreatedAt time.Time     `json:"createdAt" bson:"createdAt"`
+	UpdatedAt time.Time     `json:"updatedAt" bson:"updatedAt"`
+	ExpiresAt int64         `json:"expiresAt" bson:"expiresAt"`
 }
 
 func (fol *Folder) Create() {
 	fol.Id = uniuri.NewLen(5)
 	fol.Files = []*File{}
 	fol.CreatedAt = time.Now()
-	fol.ExpiresAt = fol.CreatedAt.Add(4 * time.Hour)
+	fol.ExpiresAt = fol.CreatedAt.Add(4 * time.Hour).Unix()
 
 	db := db.NewDb("folders")
 	defer db.Session.Close()

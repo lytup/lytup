@@ -17,22 +17,26 @@ const (
 )
 
 func CreateFile(params martini.Params, ren render.Render, file models.File) {
-	file.Create(params["id"])
+	file.Create(params["folId"])
 	ren.JSON(http.StatusCreated, file)
 }
 
 func FindFileById(params martini.Params, ren render.Render) {
-	_, file := models.FindFileById(params["id"])
+	id, ok := params["id"]
+	if !ok {
+		id = params["fileId"]
+	}
+	_, file := models.FindFileById(id)
 	ren.JSON(http.StatusOK, file)
 }
 
 func UpdateFile(rw http.ResponseWriter, params martini.Params, file models.File) {
-	models.UpdateFile(params["folId"], params["id"], &file)
+	models.UpdateFile(params["folId"], params["folId"], &file)
 	rw.WriteHeader(http.StatusOK)
 }
 
 func DeleteFile(rw http.ResponseWriter, params martini.Params) {
-	models.DeleteFile(params["folId"], params["id"])
+	models.DeleteFile(params["folId"], params["fileId"])
 	rw.WriteHeader(http.StatusOK)
 }
 
@@ -44,7 +48,7 @@ func UploadFiles(req *http.Request, rw http.ResponseWriter, params martini.Param
 	}
 
 	// Create folder
-	folPath := path.Join(UPLOAD_DIR, params["id"])
+	folPath := path.Join(UPLOAD_DIR, params["folId"])
 	err = os.MkdirAll(folPath, 0755)
 	if err != nil {
 		log.Fatal(err)

@@ -43,35 +43,40 @@ func main() {
 
 	m.Get("/ws", websocket.Handler(wsHandler).ServeHTTP)
 
-	//*********
-	// Folders
-	//*********
-	m.Post("/api/folders", binding.Bind(models.Folder{}), routes.CreateFolder)
-	m.Get("/api/folders", routes.FindFolders)
-	m.Get("/api/folders/:id", routes.FindFolderById)
-	m.Patch("/api/folders/:id", binding.Bind(models.Folder{}),
-		routes.UpdateFolder)
-	m.Delete("/api/folders/:id", routes.DeleteFolder)
+	//*******
+	// Users
+	//*******
+	m.Post("/api/users", binding.Bind(models.User{}), routes.CreateUser)
+	m.Post("/l", binding.Bind(models.User{}), routes.Login)
 
-	//*******
-	// Files
-	//*******
-	m.Post("/api/folders/:id/files", binding.Bind(models.File{}),
-		routes.CreateFile)
-	m.Get("/api/folders/:folId/files/:id", routes.FindFileById)
-	m.Get("/api/files/:id", routes.FindFileById)
-	m.Patch("/api/folders/:folId/files/:id",
-		binding.Bind(models.File{}), routes.UpdateFile)
-	m.Delete("/api/folders/:folId/files/:id", routes.DeleteFile)
+	m.Group("/api", func(r martini.Router) {
+		//*********
+		// Folders
+		//*********
+		r.Post("/folders", binding.Bind(models.Folder{}), routes.CreateFolder)
+		r.Get("/folders", routes.FindFolders)
+		r.Get("/folders/:id", routes.FindFolderById)
+		r.Patch("/folders/:id", binding.Bind(models.Folder{}),
+			routes.UpdateFolder)
+		r.Delete("/folders/:id", routes.DeleteFolder)
+
+		//*******
+		// Files
+		//*******
+		r.Post("/folders/:folId/files", binding.Bind(models.File{}),
+			routes.CreateFile)
+		r.Get("/folders/:folId/files/:fileId", routes.FindFileById)
+		r.Get("/files/:id", routes.FindFileById)
+		r.Patch("/folders/:folId/files/:fileId",
+			binding.Bind(models.File{}), routes.UpdateFile)
+		r.Delete("/folders/:folId/files/:fileId", routes.DeleteFile)
+	}, routes.ValidateToken)
 
 	//*******************
 	// Upload / Download
 	//*******************
-	m.Post("/u/:id", routes.UploadFiles)
-	m.Get("/d/:id", routes.Download)
-	// Download files
-	// https://github.com/visionmedia/express/blob/9bf1247716c1f43e2c31c96fc965387abfeae531/lib/utils.js#L161
-	// m.Get("/d/i/:id", routes.DownloadFile)
+	m.Post("/u/:folId", routes.UploadFiles, routes.ValidateToken)
+	m.Get("/d/:id", routes.Download, routes.ValidateToken)
 
 	log.Fatal(http.ListenAndServe("localhost:3000", m))
 }

@@ -15,12 +15,13 @@ import (
 	"strconv"
 )
 
-func CreateFolder(fol models.Folder, ren render.Render) {
+func CreateFolder(fol models.Folder, ren render.Render, usr *models.User) {
+	fol.UserId = usr.Id
 	fol.Create()
 	ren.JSON(http.StatusCreated, fol)
 }
 
-func FindFolders(ren render.Render) {
+func FindFolders(ren render.Render, usr *models.User) {
 	folders := models.FindFolders()
 	ren.JSON(http.StatusOK, folders)
 }
