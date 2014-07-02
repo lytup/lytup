@@ -3,13 +3,15 @@
     <ul class="list-inline">
       <li>
         <button type="button" class="btn btn-default btn-cir"
-            bs-tooltip title="Share Folder">
+            tooltip="Share Folder">
           <i class="fa fa-share-alt fa-lg"></i>
         </button>
       </li>
       <li>
         <button type="button" class="btn btn-default btn-cir"
-            ly-copy data-clipboard-text="{{BASE_URI}}/{{folder.id}}">
+            tooltip="{{text}}" ly-copy copy-text="Copy Link"
+            copied-text="Copied!"
+            data-clipboard-text="{{BASE_URI}}/{{folder.id}}">
           <i class="fa fa-link fa-lg"></i>
         </button>
       </li>
@@ -28,15 +30,14 @@
   <div class="col-md-3 col-xs-3 menu-right">
     <ul class="list-inline">
       <li>
-        <div class="btn btn-default btn-file btn-cir"
-            bs-tooltip title="Add Files">
+        <div class="btn btn-default btn-file btn-cir" tooltip="Add Files">
           <i class="fa fa-plus fa-lg"></i>
           <input type="file" ng-file-select="addFiles($files)" multiple>
         </div>
       </li>
       <li>
         <a ng-href="/d/{{folder.id}}" class="btn btn-default btn-cir"
-          bs-tooltip title="Download" ly-download>
+            tooltip="Download" ly-download>
           <i class="fa fa-download fa-lg"></i>
         </a>
       </li>
@@ -61,13 +62,13 @@
       <div class="grid-item-action">
         <ul class="list-inline">
           <li>
-            <a ng-href="/d/{{file.id}}" ly-download bs-tooltip title="Download">
+            <a ng-href="/d/{{file.id}}" ly-download tooltip="Download">
               <i class="fa fa-download fa-lg"></i>
             </a>
           </li>
           <li>
-            <a href="" ng-click="deleteFile(file, -($index + 1))" bs-tooltip
-                title="Delete">
+            <a href="" ng-click="deleteFile(file, -($index + 1))"
+                tooltip="Delete">
               <i class="fa fa-trash-o fa-lg"></i>
             </a>
           </li>

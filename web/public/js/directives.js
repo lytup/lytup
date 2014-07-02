@@ -5,24 +5,20 @@ angular.module('lytup.directives', [])
 
     function() {
       return {
-        link: function(scope, elm) {
-          var clip = new ZeroClipboard(elm);
-
-          elm.tooltip({
-            trigger: 'hover'
-          });
+        link: function(scope, elm, attrs) {
+          var clt = new ZeroClipboard(elm);
 
           elm.on('mouseover', function() {
-            elm.attr('data-original-title', 'Copy Link')
-              .tooltip('show');
+            scope.text = attrs.copyText;
+            scope.$apply();
           });
 
-          clip.on('aftercopy', function() {
-            elm.attr('data-original-title', 'Copied!')
-              .tooltip('show');
+          clt.on('aftercopy', function() {
+            scope.text = attrs.copiedText;
+            scope.$apply();
           });
 
-          clip.on('error', function(event) {
+          clt.on('error', function() {
             ZeroClipboard.destroy();
           });
         }
@@ -30,6 +26,7 @@ angular.module('lytup.directives', [])
     }
   ])
   .directive('lyDownload', [
+
     function() {
       return {
         link: function(scope, elm, attrs) {
@@ -43,6 +40,7 @@ angular.module('lytup.directives', [])
     }
   ])
   .directive('lyKnob', [
+
     function() {
       return {
         link: function(scope, elm, attrs) {
@@ -58,6 +56,7 @@ angular.module('lytup.directives', [])
     }
   ])
   .directive('lyFromNow', [
+
     function() {
       return {
         link: function(scope, elm, attrs) {
@@ -68,16 +67,6 @@ angular.module('lytup.directives', [])
           });
         }
       }
-    }
-  ])
-  .directive('bsTooltip', [function() {
-      return {
-        link: function(scope, elm) {
-          elm.tooltip({
-            trigger: 'hover'
-          });
-        }
-      };
     }
   ])
   .directive('appVersion', ['version',

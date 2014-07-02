@@ -38,7 +38,7 @@ func (usr *User) Login() error {
 		One(usr)
 }
 
-func (self *User) Render() *User {
-	self.Password = ""
-	return self
+func (usr *User) Render() *User {
+	usr.Password = ""
+	return usr
 }

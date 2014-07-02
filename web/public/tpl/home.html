@@ -3,7 +3,7 @@
     <ul class="list-inline">
       <li>
         <button type="button" class="btn btn-default btn-cir"
-            bs-tooltip title="Edit">
+            tooltip="Edit">
           <i class="fa fa-pencil fa-lg"></i>
         </button>
       </li>
@@ -30,13 +30,12 @@
       <div class="grid-item-action">
         <ul class="list-inline">
           <li>
-            <a ng-href="/d/{{fol.id}}" ly-download bs-tooltip title="Download">
+            <a ng-href="/d/{{fol.id}}" ly-download tooltip="Download">
               <i class="fa fa-download fa-lg"></i>
             </a>
           </li>
           <li>
-            <a href="" ng-click="deleteFolder(fol, -($index + 1))" bs-tooltip
-                title="Delete">
+            <a ng-click="deleteFolder(fol, -($index + 1))" tooltip="Delete">
               <i class="fa fa-trash-o fa-lg"></i>
             </a>
           </li>

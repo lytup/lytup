@@ -46,8 +46,10 @@ func main() {
 	//*******
 	// Users
 	//*******
-	m.Post("/api/users", binding.Bind(models.User{}), routes.CreateUser)
-	m.Post("/l", binding.Bind(models.User{}), routes.Login)
+	m.Group("/api", func(r martini.Router) {
+		r.Post("/users", binding.Bind(models.User{}), routes.CreateUser)
+		r.Post("/users/login", binding.Bind(models.User{}), routes.Login)
+	})
 
 	m.Group("/api", func(r martini.Router) {
 		//*********

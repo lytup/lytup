@@ -5,42 +5,49 @@ angular.module('lytup', [
   'ngSocket',
   'restangular',
   'angularFileUpload',
+  'ui.bootstrap',
   'lytup.filters',
   'lytup.services',
   'lytup.directives',
   'lytup.controllers'
 ])
-  .config(['$locationProvider', '$routeProvider', 'RestangularProvider',
-    function($locationProvider, $routeProvider, RestangularProvider) {
+  .config(['$locationProvider',
+    '$httpProvider',
+    '$routeProvider',
+    'RestangularProvider',
+    function($locationProvider, $httpProvider, $routeProvider, RestangularProvider) {
       $locationProvider.html5Mode(true);
-      RestangularProvider.setBaseUrl('/api');
+
+      $httpProvider.interceptors.push('AuthInterceptor');
 
       $routeProvider.when('/', {
-        templateUrl: '/partials/landing.html'
+        controller: 'LandingCtrl',
+        templateUrl: '/tpl/landing.html'
       });
 
       $routeProvider.when('/home', {
         controller: 'HomeCtrl',
-        templateUrl: '/partials/home.html'
+        templateUrl: '/tpl/home.html'
       });
 
       $routeProvider.when('/:id', {
         controller: 'FolderCtrl',
-        templateUrl: '/partials/folder.html'
+        templateUrl: '/tpl/folder.html'
       });
 
       $routeProvider.when('/i/:id', {
         controller: 'FileCtrl',
-        templateUrl: '/partials/file.html'
+        templateUrl: '/tpl/file.html'
       });
 
       $routeProvider.otherwise({
         redirectTo: '/'
       });
+
+      RestangularProvider.setBaseUrl('/api');
     }
   ]).run(['$rootScope',
     function($rootScope) {
-      $rootScope.BASE_URI = location.protocol + '//' + location.hostname
-          + (location.port && ':' + location.port);
+      $rootScope.BASE_URI = location.protocol + '//' + location.hostname + (location.port && ':' + location.port);
     }
   ]);

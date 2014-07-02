@@ -31,7 +31,7 @@ func FindFileById(params martini.Params, ren render.Render) {
 }
 
 func UpdateFile(rw http.ResponseWriter, params martini.Params, file models.File) {
-	models.UpdateFile(params["folId"], params["folId"], &file)
+	models.UpdateFile(params["folId"], params["fileId"], &file)
 	rw.WriteHeader(http.StatusOK)
 }
 

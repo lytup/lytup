@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/lytup/server/models"
 	"github.com/labstack/lytup/server/utils"
 	"github.com/martini-contrib/render"
+	"labix.org/v2/mgo/bson"
 	"net/http"
 	"strings"
 	"time"
@@ -37,9 +38,9 @@ func Login(rw http.ResponseWriter, ren render.Render, usr models.User) {
 	}
 	t := jwt.New(jwt.GetSigningMethod("HS256"))
 	t.Claims["exp"] = time.Now().Add(120 * time.Hour).Unix()
-	t.Claims["usr-email"] = usr.Email
+	t.Claims["usr-id"] = usr.Id
 	token, err := t.SignedString(utils.KEY)
-	ren.JSON(http.StatusOK, map[string]interface{}{"token": token})
+	ren.JSON(http.StatusOK, map[string]interface{}{"user": usr, "token": token})
 }
 
 func ValidateToken(req *http.Request, rw http.ResponseWriter, ctx martini.Context) {
@@ -50,7 +51,8 @@ func ValidateToken(req *http.Request, rw http.ResponseWriter, ctx martini.Contex
 			return utils.KEY, nil
 		})
 		if err == nil && t.Valid {
-			usr := models.User{Email: t.Claims["usr-email"].(string)}
+			id := t.Claims["usr-id"].(string)
+			usr := models.User{Id: bson.ObjectIdHex(id)}
 			ctx.Map(&usr)
 			return
 		}
