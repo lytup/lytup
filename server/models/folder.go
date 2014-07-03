@@ -16,14 +16,14 @@ type Folder struct {
 	UserId    bson.ObjectId `json:"userId" bson:"userId"`
 	CreatedAt time.Time     `json:"createdAt" bson:"createdAt"`
 	UpdatedAt time.Time     `json:"updatedAt" bson:"updatedAt"`
-	ExpiresAt int64         `json:"expiresAt" bson:"expiresAt"`
+	ExpiresAt time.Time     `json:"expiresAt" bson:"expiresAt"`
 }
 
 func (fol *Folder) Create() {
 	fol.Id = uniuri.NewLen(5)
 	fol.Files = []*File{}
 	fol.CreatedAt = time.Now()
-	fol.ExpiresAt = fol.CreatedAt.Add(4 * time.Hour).Unix()
+	fol.ExpiresAt = fol.CreatedAt.Add(4 * time.Hour)
 
 	db := db.NewDb("folders")
 	defer db.Session.Close()

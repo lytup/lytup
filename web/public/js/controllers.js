@@ -4,11 +4,12 @@ angular.module('lytup.controllers', [])
   .controller('HomeCtrl', [
     '$scope',
     '$window',
+    '$location',
     '$log',
     'ngSocket',
     '$modal',
     'Restangular',
-    function($scope, $window, $log, ngSocket, $modal, Restangular) {
+    function($scope, $window, $location, $log, ngSocket, $modal, Restangular) {
       $log.info('Home controller');
       var token = $window.localStorage.getItem('token');
       var ws = ngSocket('ws://localhost:1431/ws');
@@ -62,7 +63,7 @@ angular.module('lytup.controllers', [])
       };
 
       $scope.createFolder = function() {
-        $scope.folders.post({}).then(function(fol) {
+        Restangular.all('folders').post({}).then(function(fol) {
           $scope.folder = fol;
           $scope.folders.push(fol);
           $location.path('/' + fol.id);
