@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/lytup/server/db"
 	"github.com/labstack/lytup/server/utils"
 	"labix.org/v2/mgo/bson"
@@ -13,6 +14,7 @@ type User struct {
 	Email          string        `json:"email" bson:"email"`
 	Password       string        `json:"password,omitempty" bson:"-"`
 	HashedPassword []byte        `json:"-" bson:"password"`
+	Token          string        `json:"token,omitempty"`
 	CreatedAt      time.Time     `json:"createdAt" bson:"createdAt"`
 	UpdatedAt      time.Time     `json:"updatedAt" bson:"updatedAt"`
 	EmailVerified  bool          `json:"emailVerified" bson:"emailVerified"`
@@ -28,14 +30,33 @@ func (usr *User) Create() {
 	if err != nil {
 		panic(err)
 	}
+
+	usr.Login()
 }
 
-func (usr *User) Login() error {
+func (usr *User) Find() {
 	db := db.NewDb("users")
 	defer db.Session.Close()
-	return db.Collection.Find(bson.M{"email": usr.Email,
+	err := db.Collection.FindId(usr.Id).One(usr)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (usr *User) Login() {
+	db := db.NewDb("users")
+	defer db.Session.Close()
+	err := db.Collection.Find(bson.M{"email": usr.Email,
 		"password": utils.HashPassword([]byte(usr.Password))}).
 		One(usr)
+
+	token := jwt.New(jwt.GetSigningMethod("HS256"))
+	token.Claims["exp"] = time.Now().Add(120 * time.Hour).Unix()
+	token.Claims["usr-id"] = usr.Id
+	usr.Token, err = token.SignedString(utils.KEY)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (usr *User) Render() *User {

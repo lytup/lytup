@@ -26,7 +26,7 @@ func FindFolders(ren render.Render, usr *models.User) {
 	ren.JSON(http.StatusOK, folders)
 }
 
-func FindFolderById(rw http.ResponseWriter, params martini.Params, ren render.Render) {
+func FindFolderById(params martini.Params, ren render.Render) {
 	fol := models.FindFolderById(params["id"])
 	ren.JSON(http.StatusOK, fol)
 }

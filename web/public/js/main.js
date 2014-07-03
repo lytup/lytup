@@ -20,13 +20,12 @@ angular.module('lytup', [
 
       $httpProvider.interceptors.push('AuthInterceptor');
 
-      $routeProvider.when('/', {
-        controller: 'LandingCtrl',
-        templateUrl: '/tpl/landing.html'
-      });
+      // $routeProvider.when('/', {
+      //   controller: 'LandingCtrl',
+      //   templateUrl: '/tpl/landing.html'
+      // });
 
-      $routeProvider.when('/home', {
-        controller: 'HomeCtrl',
+      $routeProvider.when('/', {
         templateUrl: '/tpl/home.html'
       });
 

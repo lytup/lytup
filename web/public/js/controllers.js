@@ -1,99 +1,65 @@
 'use strict';
 
 angular.module('lytup.controllers', [])
-  .controller('Controller', [
+  .controller('HomeCtrl', [
     '$scope',
+    '$window',
     '$log',
     'ngSocket',
-    function($scope, $log, ngSocket) {
-      $log.info("Lytup controller")
+    '$modal',
+    'Restangular',
+    function($scope, $window, $log, ngSocket, $modal, Restangular) {
+      $log.info('Home controller');
+      var token = $window.localStorage.getItem('token');
       var ws = ngSocket('ws://localhost:1431/ws');
 
       ws.onMessage(function(msg) {
         $log.info('message received', msg.data);
       });
-    }
-  ])
-  .controller('LandingCtrl', [
-    '$scope',
-    '$window',
-    '$log',
-    '$modal',
-    function($scope, $window, $log, $modal) {
-      $log.info("Landing controller")
+
+      if (token) {
+        Restangular.one('users').get().then(function(usr) {
+          $scope.user = usr;
+          $scope.user.token = token;
+          $scope.folders = Restangular.all('folders').getList().$object;
+        });
+      }
 
       $scope.openSignup = function() {
-        var signUpModal = $modal.open({
+        $modal.open({
+          scope: $scope,
           controller: 'SignupCtrl',
           templateUrl: '/tpl/signup.html',
-          size: 'sm'
+          size: 'sm',
+          resolve: {
+            'user': function() {
+              return $scope.user;
+            }
+          }
         });
       };
 
       $scope.openSignin = function() {
-        var signUpModal = $modal.open({
+        $modal.open({
+          scope: $scope,
           controller: 'SigninCtrl',
           templateUrl: '/tpl/signin.html',
-          size: 'sm'
-        });
-      };
-    }
-  ])
-  .controller('SignupCtrl', [
-    '$scope',
-    '$location',
-    '$log',
-    '$modalInstance',
-    'Restangular',
-    function($scope, $location, $log, $modalInstance, Restangular) {
-      $log.info('Signup controller');
-
-      $scope.signup = function(user) {
-        Restangular.all('users').post(user).then(function(usr) {
-          $scope.user = usr;
-          $modalInstance.close();
-          $location.path('/home');
+          size: 'sm',
+          resolve: {
+            'user': function() {
+              return $scope.user;
+            },
+            'folders': function() {
+              return $scope.folders;
+            }
+          }
         });
       };
 
-      $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+      $scope.signout = function() {
+        $window.localStorage.removeItem('token');
+        $scope.user = {};
       };
-    }
-  ])
-  .controller('SigninCtrl', [
-    '$scope',
-    '$window',
-    '$location',
-    '$log',
-    '$modalInstance',
-    'Restangular',
-    function($scope, $window, $location, $log, $modalInstance, Restangular) {
-      $log.info('Signin controller');
-
-      $scope.signin = function(user) {
-        Restangular.all('users').all('login').post(user).then(function(data) {
-          $scope.user = data.user;
-          $window.sessionStorage.token = data.token;
-          $modalInstance.close();
-          $location.path('/home');
-        });
-      };
-
-      $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
-      };
-    }
-  ])
-  .controller('HomeCtrl', [
-    '$scope',
-    '$location',
-    '$log',
-    'Restangular',
-    function($scope, $location, $log, Restangular) {
-      $log.info("Home controller");
-      $scope.folders = Restangular.all('folders').getList().$object;
-      $scope.folder = {};
 
       $scope.createFolder = function() {
         $scope.folders.post({}).then(function(fol) {
@@ -117,7 +83,7 @@ angular.module('lytup.controllers', [])
     'Restangular',
     '$upload',
     function($scope, $routeParams, $log, Restangular, $upload) {
-      $log.info("Folder controller");
+      $log.info('Folder controller');
       $scope.folder = Restangular.one('folders', $routeParams.id).get().$object;
 
       $scope.addFiles = function(files) {
@@ -183,5 +149,51 @@ angular.module('lytup.controllers', [])
     function($scope, $routeParams, $log, Restangular) {
       $log.info('File controller');
       $scope.file = Restangular.one('files', $routeParams.id).get().$object;
+    }
+  ])
+  .controller('SignupCtrl', [
+    '$scope',
+    '$window',
+    '$log',
+    '$modalInstance',
+    'Restangular',
+    function($scope, $window, $log, $modalInstance, Restangular) {
+      $log.info('Signup controller');
+
+      $scope.signup = function(user) {
+        Restangular.all('users').post(user).then(function(usr) {
+          $window.localStorage.setItem('token', usr.token);
+          $scope.$parent.user = usr;
+          $modalInstance.close();
+        });
+      };
+
+      $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+      };
+    }
+  ])
+  .controller('SigninCtrl', [
+    '$scope',
+    '$window',
+    '$log',
+    '$modalInstance',
+    'Restangular',
+    function($scope, $window, $log, $modalInstance, Restangular) {
+      $log.info('Signin controller');
+
+      $scope.signin = function(user) {
+        Restangular.all('users').all('login').post(user)
+          .then(function(usr) {
+            $window.localStorage.setItem('token', usr.token);
+            $scope.$parent.user = usr;
+            $scope.$parent.folders = Restangular.all('folders').getList().$object;
+            $modalInstance.close();
+          });
+      };
+
+      $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+      };
     }
   ]);

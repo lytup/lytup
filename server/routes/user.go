@@ -9,7 +9,6 @@ import (
 	"labix.org/v2/mgo/bson"
 	"net/http"
 	"strings"
-	"time"
 )
 
 // var (
@@ -24,23 +23,20 @@ import (
 // 	log.Println(string(PRIVATE_KEY))
 // }
 
-func CreateUser(params martini.Params, ren render.Render, usr models.User) {
+func CreateUser(ren render.Render, usr models.User) {
 	usr.HashedPassword = utils.HashPassword([]byte(usr.Password))
 	usr.Create()
 	ren.JSON(http.StatusCreated, usr.Render())
 }
 
-func Login(rw http.ResponseWriter, ren render.Render, usr models.User) {
-	err := usr.Login()
-	if err != nil {
-		rw.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-	t := jwt.New(jwt.GetSigningMethod("HS256"))
-	t.Claims["exp"] = time.Now().Add(120 * time.Hour).Unix()
-	t.Claims["usr-id"] = usr.Id
-	token, err := t.SignedString(utils.KEY)
-	ren.JSON(http.StatusOK, map[string]interface{}{"user": usr, "token": token})
+func FindUser(ren render.Render, usr *models.User) {
+	usr.Find()
+	ren.JSON(http.StatusOK, usr.Render())
+}
+
+func Login(ren render.Render, usr models.User) {
+	usr.Login()
+	ren.JSON(http.StatusOK, usr.Render())
 }
 
 func ValidateToken(req *http.Request, rw http.ResponseWriter, ctx martini.Context) {

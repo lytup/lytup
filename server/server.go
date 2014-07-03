@@ -52,6 +52,11 @@ func main() {
 	})
 
 	m.Group("/api", func(r martini.Router) {
+		//*******
+		// Users
+		//*******
+		r.Get("/users", routes.FindUser)
+
 		//*********
 		// Folders
 		//*********
