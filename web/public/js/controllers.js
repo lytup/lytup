@@ -60,6 +60,7 @@ angular.module('lytup.controllers', [])
       $scope.signout = function() {
         $window.localStorage.removeItem('token');
         $scope.user = {};
+        $location.path('/');
       };
 
       $scope.createFolder = function() {
