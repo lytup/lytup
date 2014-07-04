@@ -70,9 +70,11 @@ angular.module('lytup.controllers', [])
         });
       };
 
-      $scope.deleteFolder = function(fol, i) {
+      $scope.deleteFolder = function(fol) {
         fol.remove().then(function() {
-          $scope.folders.splice(i, 1);
+          _.remove($scope.folders, {
+            'id': fol.id
+          });
         });
       };
     }
@@ -115,9 +117,11 @@ angular.module('lytup.controllers', [])
           'fa-file-o';
       };
 
-      $scope.deleteFile = function(file, i) {
-        $scope.folder.one('files', file.id).remove().then(function() {
-          $scope.folder.files.splice(i, 1);
+      $scope.deleteFile = function(id) {
+        $scope.folder.one('files', id).remove().then(function() {
+          _.remove($scope.folder.files, {
+            'id': id
+          });
         });
       };
 

@@ -6,6 +6,8 @@ angular.module('lytup', [
   'restangular',
   'angularFileUpload',
   'ui.bootstrap',
+  'angular-loading-bar',
+  'ngAnimate',
   'lytup.filters',
   'lytup.services',
   'lytup.directives',
