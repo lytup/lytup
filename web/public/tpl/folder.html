@@ -2,16 +2,12 @@
   <div class="col-md-3 col-xs-3 menu-left">
     <ul class="list-inline">
       <li>
-        <button type="button" class="btn btn-default btn-cir"
-            tooltip="Share Folder">
+        <button type="button" class="btn btn-default btn-cir" tooltip="Share Folder">
           <i class="fa fa-share-alt fa-lg"></i>
         </button>
       </li>
       <li>
-        <button type="button" class="btn btn-default btn-cir"
-            tooltip="{{text}}" ly-copy copy-text="Copy Link"
-            copied-text="Copied!"
-            data-clipboard-text="{{BASE_URI}}/{{folder.id}}">
+        <button type="button" class="btn btn-default btn-cir" tooltip="{{text}}" ly-copy copy-text="Copy Link" copied-text="Copied!" data-clipboard-text="{{BASE_URI}}/{{folder.id}}">
           <i class="fa fa-link fa-lg"></i>
         </button>
       </li>
@@ -36,8 +32,7 @@
         </div>
       </li>
       <li>
-        <a ng-href="/d/{{folder.id}}" class="btn btn-default btn-cir"
-            tooltip="Download" ly-download>
+        <a ng-href="/d/{{folder.id}}" class="btn btn-default btn-cir" tooltip="Download" ly-download>
           <i class="fa fa-download fa-lg"></i>
         </a>
       </li>
@@ -45,17 +40,18 @@
   </div>
 </div>
 
-<div class="center-block drop-box" ng-file-drop="addFiles($files)"
-    ng-if="folder.id && !folder.files.length">
-  Drag & Drop<br>
-  <small>or</small><br>
+<div class="center-block drop-box" ng-file-drop="addFiles($files)" ng-if="folder.id && !folder.files.length">
+  Drag & Drop
+  <br>
+  <small>or</small>
+  <br>
   <span class="btn btn-success btn-lg btn-file">
     <i class="fa fa-cloud-upload fa-lg"></i> Browse Files
     <input type="file" ng-file-select="addFiles($files)" multiple>
   </span>
 </div>
 
-<div class="row">
+<div class="row grid">
   <div class="col-md-3 col-sm-4 col-xs-12"
       ng-repeat="file in folder.files | orderBy:'-createdAt'">
     <div class="center-block grid-item">
@@ -67,24 +63,21 @@
             </a>
           </li>
           <li>
-            <a href="" ng-click="deleteFile(file, -($index + 1))"
-                tooltip="Delete">
+            <a href="" ng-click="deleteFile(file.id)" tooltip="Delete">
               <i class="fa fa-trash-o fa-lg"></i>
             </a>
           </li>
         </ul>
       </div>
       <!-- <a ng-href="/i/{{file.id}}"> -->
-        <div class="grid-item-holder">
-          <div class="grid-item-progress" ng-hide="file.loaded === 100">
-            <input value="{{file.loaded}}" ly-knob data-width="50"
-                data-height="50" data-fgcolor="#45aeea"
-                data-bgcolor="#bee3f7" data-thickness=".1">
-          </div>
-          <div class="grid-item-info">
-            <h5>{{file.name}} <small>{{file.size | bytes}}</small></h5>
-          </div>
+      <div class="grid-item-holder">
+        <div class="grid-item-progress" ng-hide="file.loaded === 100">
+          <input value="{{file.loaded}}" ly-knob data-width="50" data-height="50" data-fgcolor="#45aeea" data-bgcolor="#bee3f7" data-thickness=".1">
         </div>
+        <div class="grid-item-info">
+          <h5>{{file.name}} <small>{{file.size | bytes}}</small></h5>
+        </div>
+      </div>
       <!-- </a> -->
     </div>
     </a>
