@@ -17,7 +17,7 @@
     <div class="col-md-4 col-xs-4 menu-right">
       <ul class="list-inline">
         <li>
-          <button type="button" class="btn btn-primary" ng-click="createFolder()">
+          <button type="button" class="btn btn-primary" ng-click="folderModal()">
             <i class="fa fa-plus"></i> New Folder
           </button>
         </li>
@@ -44,7 +44,7 @@
         <a ng-href="/{{fol.id}}">
           <div class="grid-item-holder">
             <div class="grid-item-info">
-              <h5>{{fol.id}} <small>{{fol.files.length}} Files</small></h5>
+              <h5>{{fol.name}} <small>{{fol.files.length}} Files</small></h5>
             </div>
           </div>
         </a>

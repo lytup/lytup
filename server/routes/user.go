@@ -34,8 +34,12 @@ func FindUser(ren render.Render, usr *models.User) {
 	ren.JSON(http.StatusOK, usr.Render())
 }
 
-func Login(ren render.Render, usr models.User) {
-	usr.Login()
+func Login(rw http.ResponseWriter, ren render.Render, usr models.User) {
+	err := usr.Login()
+	if err != nil {
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
 	ren.JSON(http.StatusOK, usr.Render())
 }
 

@@ -1,0 +1,27 @@
+<div class="modal-header">
+  <button type="button" class="close" ng-click="$dismiss('cancel')">
+    &times;
+  </button>
+  <h4 class="modal-title">
+    <span ng-if="!folder.id">New Folder</span>
+    <span ng-if="folder.id">Edit Folder</span>
+  </h4>
+</div>
+<div class="modal-body">
+  <form role="form" name="form">
+    <div class="form-group" ng-class="{'has-error': form.name.$invalid && form.name.$dirty}">
+      <input type="text" name="name" class="form-control" placeholder="Name" required ng-model="folder.name">
+    </div>
+    <div class="form-group" ng-class="{'has-error': form.expiry.$invalid && form.expiry.$dirty}">
+      <select name="expiry" class="form-control" required ng-model="folder.expiry" ng-options="e.val as e.lbl for e in expiries">
+        <option value="">Expiry</option>
+      </select>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-primary" ng-disabled="form.$invalid" ng-click="save(folder)">
+    <span ng-if="!folder.id">Create</span>
+    <span ng-if="folder.id">Update</span>
+  </button>
+</div>

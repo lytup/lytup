@@ -13,6 +13,7 @@ type Folder struct {
 	Id        string        `json:"id" bson:"id"`
 	Name      string        `json:"name" bson:"name"`
 	Files     []*File       `json:"files" bson:"files"`
+	Expiry    uint16        `json:"expiry" bson:"expiry"`
 	UserId    bson.ObjectId `json:"userId" bson:"userId"`
 	CreatedAt time.Time     `json:"createdAt" bson:"createdAt"`
 	UpdatedAt time.Time     `json:"updatedAt" bson:"updatedAt"`
@@ -23,7 +24,7 @@ func (fol *Folder) Create() {
 	fol.Id = uniuri.NewLen(5)
 	fol.Files = []*File{}
 	fol.CreatedAt = time.Now()
-	fol.ExpiresAt = fol.CreatedAt.Add(4 * time.Hour)
+	fol.ExpiresAt = fol.CreatedAt.Add(time.Duration(fol.Expiry) * time.Hour)
 
 	db := db.NewDb("folders")
 	defer db.Session.Close()
@@ -56,17 +57,25 @@ func FindFolderById(id string) *Folder {
 }
 
 func UpdateFolder(id string, fol *Folder) {
-	fol.UpdatedAt = time.Now()
+	now := time.Now()
+	m := bson.M{"updatedAt": now}
+
+	if fol.Name != "" {
+		m["name"] = fol.Name
+	}
+	if fol.Expiry != 0 {
+		m["expiry"] = fol.Expiry
+		m["expiresAt"] = now.Add(time.Duration(fol.Expiry) * time.Hour)
+		fol.ExpiresAt = m["expiresAt"].(time.Time)
+	}
 
 	db := db.NewDb("folders")
 	defer db.Session.Close()
 	err := db.Collection.Update(bson.M{"id": id},
-		bson.M{"$set": bson.M{"updatedAt": time.Now()}})
+		bson.M{"$set": m})
 	if err != nil {
 		panic(err)
 	}
-
-	// TODO: Update other fields on-demand basis
 }
 
 func DeleteFolder(id string) {

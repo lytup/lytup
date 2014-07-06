@@ -82,43 +82,6 @@ body {
 .file-panel .btn:focus {
   outline: none;
 }
-.grid {
-  /* .ng-enter,
-  .ng-leave,
-  .ng-move {
-    -webkit-transition: 0.5s linear all;
-    transition: 0.5s linear all;
-    position:relative;
-  }
-
-  .ng-enter {
-    left:-10px;
-    opacity:0;
-  }
-
-  .ng-enter.ng-enter-active {
-    left:0;
-    opacity:1;
-  }
-
-  .ng-leave {
-    left:0;
-    opacity:1;
-  }
-
-  .ng-leave.ng-leave-active {
-    left:-10px;
-    opacity:0;
-  }
-
-  .ng-move {
-    opacity:0.5;
-  }
-
-  .ng-move.ng-move-active {
-    opacity:1;
-  } */
-}
 .grid-item {
   height: 200px;
   width: 200px;

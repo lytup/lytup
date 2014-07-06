@@ -13,6 +13,8 @@ angular.module('lytup.controllers', [])
       $log.info('Home controller');
       var token = $window.localStorage.getItem('token');
       var ws = ngSocket('ws://localhost:1431/ws');
+      $scope.user = {};
+      $scope.folders = [];
 
       ws.onMessage(function(msg) {
         $log.info('message received', msg.data);
@@ -26,34 +28,30 @@ angular.module('lytup.controllers', [])
         });
       }
 
-      $scope.openSignup = function() {
+      $scope.signupModal = function() {
         $modal.open({
           scope: $scope,
-          controller: 'SignupCtrl',
-          templateUrl: '/tpl/signup.html',
-          size: 'sm',
-          resolve: {
-            'user': function() {
-              return $scope.user;
-            }
-          }
+          controller: 'SignupModalCtrl',
+          templateUrl: '/tpl/modals/signup.html',
+          size: 'sm'
         });
       };
 
-      $scope.openSignin = function() {
+      $scope.signinModal = function() {
         $modal.open({
           scope: $scope,
-          controller: 'SigninCtrl',
-          templateUrl: '/tpl/signin.html',
-          size: 'sm',
-          resolve: {
-            'user': function() {
-              return $scope.user;
-            },
-            'folders': function() {
-              return $scope.folders;
-            }
-          }
+          controller: 'SigninModalCtrl',
+          templateUrl: '/tpl/modals/signin.html',
+          size: 'sm'
+        });
+      };
+
+      $scope.folderModal = function() {
+        $modal.open({
+          scope: $scope,
+          controller: 'FolderModalCtrl',
+          templateUrl: '/tpl/modals/folder.html',
+          size: 'sm'
         });
       };
 
@@ -61,14 +59,6 @@ angular.module('lytup.controllers', [])
         $window.localStorage.removeItem('token');
         $scope.user = {};
         $location.path('/');
-      };
-
-      $scope.createFolder = function() {
-        Restangular.all('folders').post({}).then(function(fol) {
-          $scope.folder = fol;
-          $scope.folders.push(fol);
-          $location.path('/' + fol.id);
-        });
       };
 
       $scope.deleteFolder = function(fol) {
@@ -84,11 +74,21 @@ angular.module('lytup.controllers', [])
     '$scope',
     '$routeParams',
     '$log',
+    '$modal',
     'Restangular',
     '$upload',
-    function($scope, $routeParams, $log, Restangular, $upload) {
+    function($scope, $routeParams, $log, $modal, Restangular, $upload) {
       $log.info('Folder controller');
       $scope.folder = Restangular.one('folders', $routeParams.id).get().$object;
+
+      $scope.folderModal = function() {
+        $modal.open({
+          scope: $scope,
+          controller: 'FolderModalCtrl',
+          templateUrl: '/tpl/modals/folder.html',
+          size: 'sm'
+        });
+      };
 
       $scope.addFiles = function(files) {
         var fol = $scope.folder;
@@ -157,14 +157,14 @@ angular.module('lytup.controllers', [])
       $scope.file = Restangular.one('files', $routeParams.id).get().$object;
     }
   ])
-  .controller('SignupCtrl', [
+  .controller('SignupModalCtrl', [
     '$scope',
     '$window',
     '$log',
     '$modalInstance',
     'Restangular',
     function($scope, $window, $log, $modalInstance, Restangular) {
-      $log.info('Signup controller');
+      $log.info('Signup modal controller');
 
       $scope.signup = function(user) {
         Restangular.all('users').post(user).then(function(usr) {
@@ -173,20 +173,16 @@ angular.module('lytup.controllers', [])
           $modalInstance.close();
         });
       };
-
-      $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
-      };
     }
   ])
-  .controller('SigninCtrl', [
+  .controller('SigninModalCtrl', [
     '$scope',
     '$window',
     '$log',
     '$modalInstance',
     'Restangular',
     function($scope, $window, $log, $modalInstance, Restangular) {
-      $log.info('Signin controller');
+      $log.info('Signin modal controller');
 
       $scope.signin = function(user) {
         Restangular.all('users').all('login').post(user)
@@ -197,9 +193,43 @@ angular.module('lytup.controllers', [])
             $modalInstance.close();
           });
       };
+    }
+  ]).controller('FolderModalCtrl', [
+    '$scope',
+    '$location',
+    '$log',
+    '$modalInstance',
+    'Restangular',
+    function($scope, $location, $log, $modalInstance, Restangular) {
+      $log.info('Folder modal controller');
+      $scope.expiries = [{
+        val: 1,
+        lbl: '1 hour'
+      }, {
+        val: 4,
+        lbl: '4 hours'
+      }, {
+        val: 24,
+        lbl: '1 day'
+      }];
 
-      $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+      $scope.save = function(folder) {
+        if (!folder.id) {
+          // Create
+          Restangular.all('folders').post(folder).then(function(fol) {
+            $scope.folders.push(fol);
+            $modalInstance.close();
+            $location.path('/' + fol.id);
+          });
+        } else {
+          // Update
+          folder.patch(_.pick(folder, 'name', 'expiry'))
+            .then(function(fol) {
+              _.assign(folder, _.pick(fol, 'name', 'expiry', 'expiresAt'))
+              $modalInstance.close();
+              $location.path('/' + folder.id);
+            });
+        }
       };
     }
   ]);

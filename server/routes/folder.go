@@ -31,9 +31,9 @@ func FindFolderById(params martini.Params, ren render.Render) {
 	ren.JSON(http.StatusOK, fol)
 }
 
-func UpdateFolder(fol models.Folder, rw http.ResponseWriter, params martini.Params) {
+func UpdateFolder(ren render.Render, params martini.Params, fol models.Folder) {
 	models.UpdateFolder(params["id"], &fol)
-	rw.WriteHeader(http.StatusOK)
+	ren.JSON(http.StatusOK, fol)
 }
 
 func DeleteFolder(rw http.ResponseWriter, params martini.Params) {
@@ -108,6 +108,6 @@ func downloadFile(id string, rw http.ResponseWriter) {
 	defer f.Close()
 
 	rw.Header().Set("Content-Disposition", "attachment; filename='"+file.Name+"'")
-	rw.Header().Set("Content-Length", strconv.FormatInt(file.Size, 10))
+	rw.Header().Set("Content-Length", strconv.FormatUint(file.Size, 10))
 	io.Copy(rw, f)
 }

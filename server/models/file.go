@@ -13,9 +13,9 @@ import (
 type File struct {
 	Id        string    `json:"id" bson:"id"`
 	Name      string    `json:"name" bson:"name"`
-	Size      int64     `json:"size" bson:"size"`
+	Size      uint64    `json:"size" bson:"size"`
 	Type      string    `json:"type" bson:"type"`
-	Loaded    int       `json:"loaded" bson:"loaded"`
+	Loaded    uint8     `json:"loaded" bson:"loaded"`
 	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
 }
 

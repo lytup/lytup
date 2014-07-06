@@ -15,12 +15,20 @@
   </div>
   <div class="col-md-6 col-xs-6 menu-center">
     <h4>
-      {{folder.files.length}} FILES
-      <small ng-show="folder.files.length">
-        expires
-        <span class="text-danger" ly-from-now data-date="{{folder.expiresAt}}">
-        </span>
-      </small>
+      <ul class="list-inline">
+        <li class="label label-default">{{folder.name}}</li>
+        <li class="label label-default">{{folder.files.length}} FILES</li>
+        <li class="label label-danger" ng-show="folder.files.length">
+          Expires
+          <span ly-from-now data-date="{{folder.expiresAt}}">
+          </span>
+        </li>
+        <li>
+          <a href="" ng-click="folderModal()">
+            <i class="fa fa-pencil"></i>
+          </a>
+        </li>
+      </ul>
     </h4>
   </div>
   <div class="col-md-3 col-xs-3 menu-right">
