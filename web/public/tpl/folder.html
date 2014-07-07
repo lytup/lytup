@@ -17,7 +17,12 @@
     <h4>
       <ul class="list-inline">
         <li class="label label-default">{{folder.name}}</li>
-        <li class="label label-default">{{folder.files.length}} FILES</li>
+        <li class="label label-default">
+          {{folder.files.length}}
+          <ng-pluralize count="folders.length"
+              when="{'1': 'FILE', 'other': 'FILES'}">
+          </ng-pluralize>
+        </li>
         <li class="label label-danger" ng-show="folder.files.length">
           Expires
           <span ly-from-now data-date="{{folder.expiresAt}}">

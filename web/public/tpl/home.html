@@ -12,7 +12,16 @@
       </ul>
     </div>
     <div class="col-md-4 col-xs-4 menu-center">
-      <h4>{{folders.length}} FOLDERS</h4>
+      <h4>
+        <ul class="list-inline">
+          <li class="label label-default">
+            {{folders.length}}
+            <ng-pluralize count="folders.length"
+                when="{'1': 'FOLDER', 'other': 'FOLDERS'}">
+            </ng-pluralize>
+          </li>
+        </ul>
+      </h4>
     </div>
     <div class="col-md-4 col-xs-4 menu-right">
       <ul class="list-inline">
@@ -44,7 +53,8 @@
         <a ng-href="/{{fol.id}}">
           <div class="grid-item-holder">
             <div class="grid-item-info">
-              <h5>{{fol.name}} <small>{{fol.files.length}} Files</small></h5>
+              <h5>
+                {{fol.name}} <small>{{fol.files.length}} Files</small></h5>
             </div>
           </div>
         </a>

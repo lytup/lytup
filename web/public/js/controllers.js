@@ -211,6 +211,12 @@ angular.module('lytup.controllers', [])
       }, {
         val: 24,
         lbl: '1 day'
+      }, {
+        val: 72,
+        lbl: '3 days'
+      }, {
+        val: 168,
+        lbl: '1 week'
       }];
 
       $scope.save = function(folder) {
