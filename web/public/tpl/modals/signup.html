@@ -4,8 +4,8 @@
   </button>
   <h4 class="modal-title">Sign Up</h4>
 </div>
-<div class="modal-body">
-  <form role="form" name="form">
+<form role="form" name="form" novalidate ng-submit="form.$valid && signup(user)">
+  <div class="modal-body">
     <div class="form-group" ng-class="{'has-error': form.name.$invalid && form.name.$dirty}">
       <input type="text" name="name" class="form-control" placeholder="Name" required
         ng-model="user.name" ng-model-options="{updateOn: 'blur'}">
@@ -18,10 +18,10 @@
       <input type="password" name="password" class="form-control" placeholder="Password"
         required ng-model="user.password" ng-model-options="{updateOn: 'blur'}">
     </div>
-  </form>
-</div>
-<div class="modal-footer">
-  <button type="submit" class="btn btn-primary" ng-disabled="form.$invalid" ng-click="signup(user)">
-    Sign Up
-  </button>
-</div>
+  </div>
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-primary">
+      Sign Up
+    </button>
+  </div>
+</form>
