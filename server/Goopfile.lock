@@ -1,0 +1,9 @@
+github.com/dchest/uniuri #bc4af7603a3e0ce9d58009f82fca481555182e1c
+github.com/dgrijalva/jwt-go #1482919d15c7cbc3c48db6132a5b30d1a9c79bcc
+github.com/go-martini/martini #49411a5b646861ad29a6ddd5351717a0a9c49b94
+github.com/martini-contrib/binding #f1fd5e76dcbcc36a4ff22a3e29dafe17c3e62700
+github.com/martini-contrib/cors #c3837f3383e5a50b5c31ba3c27d9bb467104cd45
+github.com/martini-contrib/render #b65063311fac6cbf84d3538f5715f7847e648322
+code.google.com/p/go.crypto/pbkdf2 #1064b89a6fb5
+github.com/gographics/imagick/imagick #b991c4b9708c7f4e066c4802089d20a931deaf92
+code.google.com/p/go.net/websocket #335bcad0b70a

@@ -8,7 +8,7 @@ build
 node_modules
 bower_components
 
-Goopfile*
+Goopfile
 .vendor
 
 .DS_Store
