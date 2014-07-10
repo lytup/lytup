@@ -3,6 +3,7 @@ package main
 import (
 	"code.google.com/p/go.net/websocket"
 	"github.com/go-martini/martini"
+	"github.com/gographics/imagick/imagick"
 	"github.com/labstack/lytup/server/models"
 	"github.com/labstack/lytup/server/routes"
 	"github.com/martini-contrib/binding"
@@ -82,8 +83,15 @@ func main() {
 	//*******************
 	// Upload / Download
 	//*******************
-	m.Post("/u/:folId", routes.UploadFiles, routes.ValidateToken)
+	m.Post("/u", routes.Upload, routes.ValidateToken)
 	m.Get("/d/:id", routes.Download, routes.ValidateToken)
+	m.Get("/d/:id/t", routes.DownloadThumbnail, routes.ValidateToken)
+
+	//*************
+	// ImageMagick
+	//*************
+	imagick.Initialize()
+	defer imagick.Terminate()
 
 	log.Fatal(http.ListenAndServe("localhost:3000", m))
 }

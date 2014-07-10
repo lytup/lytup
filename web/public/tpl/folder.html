@@ -24,6 +24,7 @@
           </ng-pluralize>
         </li>
         <li class="label label-danger" ng-show="folder.files.length">
+          <i class="fa fa-clock-o"></i>
           Expires
           <span ly-from-now data-date="{{folder.expiresAt}}">
           </span>
@@ -65,33 +66,36 @@
 </div>
 
 <div class="row grid">
-  <div class="col-md-3 col-sm-4 col-xs-12"
-      ng-repeat="file in folder.files | orderBy:'-createdAt'">
+  <div class="col-md-3 col-sm-4 col-xs-12" ng-repeat="file in folder.files | orderBy:'-createdAt'">
     <div class="center-block grid-item">
-      <div class="grid-item-action">
-        <ul class="list-inline">
-          <li>
-            <a ng-href="/d/{{file.id}}" ly-download tooltip="Download">
-              <i class="fa fa-download fa-lg"></i>
-            </a>
-          </li>
-          <li>
-            <a href="" ng-click="deleteFile(file.id)" tooltip="Delete">
-              <i class="fa fa-trash-o fa-lg"></i>
-            </a>
-          </li>
-        </ul>
-      </div>
-      <!-- <a ng-href="/i/{{file.id}}"> -->
-      <div class="grid-item-holder">
-        <div class="grid-item-progress" ng-hide="file.loaded === 100">
+      <div class="grid-item-holder" ng-init="show=false" ng-mouseover="show=true" ng-mouseleave="show=false"
+          ng-style="{'background-image': file.thumbnailUri ? 'url(' + file.thumbnailUri + ')' : ''}">
+        <div class="grid-item-top" ng-show="show">
+          <ul class="list-inline">
+            <li>
+              <a ng-href="/d/{{file.id}}" ly-download tooltip="Download">
+                <i class="fa fa-download fa-lg"></i>
+              </a>
+            </li>
+            <li>
+              <a href="" ng-click="deleteFile(file.id)" tooltip="Delete">
+                <i class="fa fa-trash-o fa-lg"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div ly-dead-center>
+          <a ng-href="/i/{{file.id}}">
+            <i class="fa fa-file-o fa-5x" ng-style="{opacity: file.thumbnailUri ? 0 : 1}"></i>
+          </a>
+        </div>
+        <div class="grid-item-progress" ng-if="file.loaded !== 100">
           <input value="{{file.loaded}}" ly-knob data-width="50" data-height="50" data-fgcolor="#45aeea" data-bgcolor="#bee3f7" data-thickness=".1">
         </div>
-        <div class="grid-item-info">
-          <h5>{{file.name}} <small>{{file.size | bytes}}</small></h5>
-        </div>
       </div>
-      <!-- </a> -->
+      <div class="grid-item-info">
+        <h5>{{file.name}} <small>{{file.size | bytes}}</small></h5>
+      </div>
     </div>
     </a>
   </div>

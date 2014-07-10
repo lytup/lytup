@@ -56,7 +56,6 @@ angular.module('lytup.directives', [])
     }
   ])
   .directive('lyFromNow', [
-
     function() {
       return {
         link: function(scope, elm, attrs) {
@@ -69,9 +68,23 @@ angular.module('lytup.directives', [])
       }
     }
   ])
+  .directive('lyDeadCenter', [
+    function() {
+      return {
+        link: function(scope, elm) {
+          elm.parent().css('position', 'relative');
+          elm.css('position', 'absolute');
+          elm.css('top', '50%');
+          elm.css('left', '50%');
+          elm.css('margin-top', '-' + elm.height() / 2 + 'px');
+          elm.css('margin-left', '-' + elm.width() / 2 + 'px');
+        }
+      }
+    }
+  ])
   .directive('appVersion', ['version',
     function(version) {
-      return function(scope, elm, attrs) {
+      return function(scope, elm) {
         elm.text(version);
       };
     }

@@ -1,11 +1,12 @@
 package routes
 
 import (
+	"bytes"
 	"github.com/go-martini/martini"
 	"github.com/labstack/lytup/server/models"
+	"github.com/labstack/lytup/server/utils"
 	"github.com/martini-contrib/render"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path"
@@ -31,7 +32,8 @@ func FindFileById(params martini.Params, ren render.Render) {
 }
 
 func UpdateFile(rw http.ResponseWriter, params martini.Params, file models.File) {
-	models.UpdateFile(params["folId"], params["fileId"], &file)
+	file.Id = params["fileId"]
+	file.Update(params["folId"])
 	rw.WriteHeader(http.StatusOK)
 }
 
@@ -40,36 +42,67 @@ func DeleteFile(rw http.ResponseWriter, params martini.Params) {
 	rw.WriteHeader(http.StatusOK)
 }
 
-func UploadFiles(req *http.Request, rw http.ResponseWriter, params martini.Params) {
-	log.Println("Upload files")
+func Upload(req *http.Request, params martini.Params, ren render.Render) {
+	var (
+		folId string
+		file  = &models.File{}
+	)
+
 	mr, err := req.MultipartReader()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
-	// Create folder
-	folPath := path.Join(UPLOAD_DIR, params["folId"])
-	err = os.MkdirAll(folPath, 0755)
-	if err != nil {
-		log.Fatal(err)
+	for {
+		part, err := mr.NextPart()
+		if err != nil {
+			break
+		}
+		defer part.Close()
+
+		if name := part.FormName(); name != "file" {
+			var buf bytes.Buffer
+			io.Copy(&buf, part)
+			val := buf.String()
+
+			if name == "folId" {
+				folId = val
+			} else if name == "fileId" {
+				file.Id = val
+				file.Uri = "/d/" + file.Id
+			}
+		} else if fileName := part.FileName(); fileName != "" {
+			// Create folder
+			folPath := path.Join(UPLOAD_DIR, folId)
+			err = os.MkdirAll(folPath, 0755)
+			if err != nil {
+				panic(err)
+			}
+
+			// Create file
+			filePath := path.Join(folPath, fileName)
+			f, err := os.Create(filePath)
+			if err != nil {
+				panic(err)
+			}
+			defer f.Close()
+
+			io.Copy(f, part)
+
+			// Create thumbnail
+			created, err := utils.CreateThumbnail(folPath, filePath, fileName,
+				part.Header.Get("Content-Type"))
+			if err != nil {
+				panic(err)
+			}
+
+			if created {
+				file.ThumbnailUri = file.Uri + "/t"
+			}
+
+			file.Update(folId)
+		}
 	}
 
-	// Get the file part
-	part, err := mr.NextPart()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer part.Close()
-
-	// Create file
-	filePath := path.Join(folPath, part.FileName())
-	file, err := os.Create(filePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	io.Copy(file, part)
-
-	rw.WriteHeader(http.StatusNoContent)
+	ren.JSON(http.StatusOK, file)
 }

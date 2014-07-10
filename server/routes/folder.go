@@ -5,10 +5,10 @@ import (
 	"github.com/go-martini/martini"
 	"github.com/labstack/lytup/server/db"
 	"github.com/labstack/lytup/server/models"
+	"github.com/labstack/lytup/server/utils"
 	"github.com/martini-contrib/render"
 	"io"
 	"labix.org/v2/mgo/bson"
-	"log"
 	"net/http"
 	"os"
 	"path"
@@ -32,7 +32,8 @@ func FindFolderById(params martini.Params, ren render.Render) {
 }
 
 func UpdateFolder(ren render.Render, params martini.Params, fol models.Folder) {
-	models.UpdateFolder(params["id"], &fol)
+	fol.Id = params["id"]
+	fol.Update()
 	ren.JSON(http.StatusOK, fol)
 }
 
@@ -50,7 +51,7 @@ func Download(rw http.ResponseWriter, params martini.Params) {
 	// Check if folder
 	n, err := db.Collection.Find(bson.M{"id": id}).Count()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	if n != 0 {
 		downloadFolder(id, rw)
@@ -60,30 +61,34 @@ func Download(rw http.ResponseWriter, params martini.Params) {
 	// Check if file
 	n, err = db.Collection.Find(bson.M{"files.id": id}).Count()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	if n != 0 {
-		downloadFile(id, rw)
+		downloadFile(id, rw, false)
 		return
 	}
 
 	rw.WriteHeader(http.StatusNotFound)
 }
 
+func DownloadThumbnail(rw http.ResponseWriter, params martini.Params) {
+	id := params["id"]
+	downloadFile(id, rw, true)
+}
+
 func downloadFolder(id string, rw http.ResponseWriter) {
-	log.Println("Download folder")
 	zw := zip.NewWriter(rw)
 	fol := models.FindFolderById(id)
 
 	for _, file := range fol.Files {
 		fw, err := zw.Create(file.Name)
 		if err != nil {
-			log.Panic(err)
+			panic(err)
 		}
 
 		f, err := os.Open(path.Join(UPLOAD_DIR, fol.Id, file.Name))
 		if err != nil {
-			log.Panic(err)
+			panic(err)
 		}
 		defer f.Close()
 
@@ -93,21 +98,32 @@ func downloadFolder(id string, rw http.ResponseWriter) {
 
 	err := zw.Close()
 	if err != nil {
-		log.Panic(err)
+		panic(err)
 	}
 }
 
-func downloadFile(id string, rw http.ResponseWriter) {
+func downloadFile(id string, rw http.ResponseWriter, thumbnail bool) {
 	folId, file := models.FindFileById(id)
 	folPath := path.Join(UPLOAD_DIR, folId)
 
 	f, err := os.Open(path.Join(folPath, file.Name))
+	if thumbnail {
+		if utils.IsVideo(file.Type) {
+			file.Name += ".jpg" // Fetch as image
+		}
+		f, err = os.Open(path.Join(folPath, "t", file.Name))
+	}
 	if err != nil {
-		log.Panic(err)
+		panic(err)
 	}
 	defer f.Close()
 
+	fi, err := f.Stat()
+	if err != nil {
+		panic(err)
+	}
+
 	rw.Header().Set("Content-Disposition", "attachment; filename='"+file.Name+"'")
-	rw.Header().Set("Content-Length", strconv.FormatUint(file.Size, 10))
+	rw.Header().Set("Content-Length", strconv.FormatInt(fi.Size(), 10))
 	io.Copy(rw, f)
 }

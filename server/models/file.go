@@ -11,12 +11,14 @@ import (
 )
 
 type File struct {
-	Id        string    `json:"id" bson:"id"`
-	Name      string    `json:"name" bson:"name"`
-	Size      uint64    `json:"size" bson:"size"`
-	Type      string    `json:"type" bson:"type"`
-	Loaded    uint8     `json:"loaded" bson:"loaded"`
-	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
+	Id           string    `json:"id,omitempty" bson:"id"`
+	Name         string    `json:"name,omitempty" bson:"name"`
+	Size         uint64    `json:"size,omitempty" bson:"size"`
+	Type         string    `json:"type,omitempty" bson:"type"`
+	Loaded       uint8     `json:"loaded,omitempty" bson:"loaded"`
+	Uri          string    `json:"uri,omitempty" bson:"uri"`
+	ThumbnailUri string    `json:"thumbnailUri,omitempty" bson:"thumbnailUri"`
+	CreatedAt    time.Time `json:"createdAt,omitempty" bson:"createdAt"`
 }
 
 func (file *File) Create(folId string) {
@@ -47,12 +49,26 @@ func FindFileById(id string) (string, *File) {
 	return fol.Id, fol.Files[0]
 }
 
-func UpdateFile(folId, fileId string, file *File) {
+func (file *File) Update(folId string) {
+	now := time.Now()
+	m := bson.M{"updatedAt": now}
+
+	if file.Loaded != 0 {
+		m["files.$.loaded"] = file.Loaded
+	}
+
+	if file.Uri != "" {
+		m["files.$.uri"] = file.Uri
+	}
+
+	if file.ThumbnailUri != "" {
+		m["files.$.thumbnailUri"] = file.ThumbnailUri
+	}
+
 	db := db.NewDb("folders")
 	defer db.Session.Close()
-	err := db.Collection.Update(bson.M{"id": folId, "files.id": fileId},
-		bson.M{"$set": bson.M{"updatedAt": time.Now(),
-			"files.$.loaded": file.Loaded}})
+	err := db.Collection.Update(bson.M{"id": folId, "files.id": file.Id},
+		bson.M{"$set": m})
 	if err != nil {
 		panic(err)
 	}

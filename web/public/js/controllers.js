@@ -100,10 +100,11 @@ angular.module('lytup.controllers', [])
           file.i = i; // Store the index for later user
 
           // Create file
-          fol.files[i] = fol.post('files', f).$object;
+          fol.post('files', f).then(function(f) {
+            fol.files[i] = f;
+            upload(file);
+          });
         });
-
-        uploadFiles(files);
       };
 
       $scope.fileIconClass = function(type) {
@@ -126,22 +127,24 @@ angular.module('lytup.controllers', [])
         });
       };
 
-      function uploadFiles(files) {
+      function upload(file) {
         var fol = $scope.folder;
+        var f = fol.files[file.i];
 
-        _.forEach(files, function(file, i) {
-          var f = fol.files[file.i];
-
-          $upload.upload({
-            url: '/u/' + fol.id,
-            file: file
-          }).progress(function(evt) {
-            f.loaded = Math.round(evt.loaded / evt.total * 100);
-          }).success(function() {
-            // Update file
-            f.patch({
-              loaded: 100
-            });
+        $upload.upload({
+          url: '/u',
+          file: file,
+          data: {
+            folId: fol.id,
+            fileId: f.id
+          }
+        }).progress(function(evt) {
+          f.loaded = Math.round(evt.loaded / evt.total * 100);
+        }).success(function(file) {
+          _.assign(f, _.omit(file, 'createdAt')); // https://code.google.com/p/go/issues/detail?id=5218
+          // Update file
+          f.patch({
+            loaded: 100
           });
         });
       }

@@ -56,13 +56,14 @@ func FindFolderById(id string) *Folder {
 	return &fol
 }
 
-func UpdateFolder(id string, fol *Folder) {
+func (fol *Folder) Update() {
 	now := time.Now()
 	m := bson.M{"updatedAt": now}
 
 	if fol.Name != "" {
 		m["name"] = fol.Name
 	}
+
 	if fol.Expiry != 0 {
 		m["expiry"] = fol.Expiry
 		m["expiresAt"] = now.Add(time.Duration(fol.Expiry) * time.Hour)
@@ -71,7 +72,7 @@ func UpdateFolder(id string, fol *Folder) {
 
 	db := db.NewDb("folders")
 	defer db.Session.Close()
-	err := db.Collection.Update(bson.M{"id": id},
+	err := db.Collection.Update(bson.M{"id": fol.Id},
 		bson.M{"$set": m})
 	if err != nil {
 		panic(err)

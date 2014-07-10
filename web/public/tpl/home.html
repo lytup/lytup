@@ -36,28 +36,44 @@
   <div class="row grid">
     <div class="col-md-3 col-sm-4 col-xs-12" ng-repeat="fol in folders | orderBy:'-createdAt'">
       <div class="center-block grid-item">
-        <div class="grid-item-action">
-          <ul class="list-inline">
-            <li>
-              <a ng-href="/d/{{fol.id}}" ly-download tooltip="Download">
-                <i class="fa fa-download fa-lg"></i>
-              </a>
-            </li>
-            <li>
-              <a ng-click="deleteFolder(fol)" tooltip="Delete">
-                <i class="fa fa-trash-o fa-lg"></i>
-              </a>
-            </li>
-          </ul>
+        <div class="grid-item-holder" ng-init="show=false" ng-mouseover="show=true" ng-mouseleave="show=false">
+          <div class="grid-item-top" ng-show="show">
+            <ul class="list-inline">
+              <li>
+                <a ng-href="/d/{{fol.id}}" ly-download tooltip="Download">
+                  <i class="fa fa-download fa-lg"></i>
+                </a>
+              </li>
+              <li>
+                <a ng-click="deleteFolder(fol)" tooltip="Delete">
+                  <i class="fa fa-trash-o fa-lg"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div ly-dead-center>
+            <a ng-href="/{{fol.id}}">
+              <i class="fa fa-folder-o fa-5x"></i>
+            </a>
+          </div>
         </div>
-        <a ng-href="/{{fol.id}}">
+
+        <!-- <div class="grid-item-action">
+        </div> -->
+        <!-- <a ng-href="/{{fol.id}}">
           <div class="grid-item-holder">
             <div class="grid-item-info">
               <h5>
-                {{fol.name}} <small>{{fol.files.length}} Files</small></h5>
+                {{fol.name}} <small>{{fol.files.length}} Files</small>
+              </h5>
             </div>
           </div>
-        </a>
+        </a> -->
+        <div class="grid-item-info">
+          <h5>
+            {{fol.name}} <small>{{fol.files.length}} Files</small>
+          </h5>
+        </div>
       </div>
     </div>
   </div>

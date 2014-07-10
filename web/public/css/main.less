@@ -1,4 +1,5 @@
 @import "../bower_components/bootstrap/less/variables.less";
+@import "../bower_components/colors/less/colors.less";
 
 .browse-happy {
   margin: 0.2em 0;
@@ -95,6 +96,46 @@ body {
 }
 
 .grid-item {
+  width: 200px;
+  margin-bottom: 20px;
+}
+
+.grid-item-holder {
+  position: relative;
+  height: 200px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  .grid-item-top {
+    position: absolute;
+    padding-top: 10px;
+    width: 100%;
+    text-align: center;
+    background-color: fade(@black, 50%);
+    a {
+      color: @white;
+      &:hover {
+        color: darken(@white, 10%);
+      }
+    }
+  }
+  .grid-item-progress {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+  }
+}
+
+.grid-item-info {
+  text-align: center;
+  h5 {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
+
+/* .grid-item {
   height: 200px;
   width: 200px;
   margin-bottom: 20px;
@@ -141,7 +182,7 @@ body {
 
 .grid-item:hover .grid-item-action ul {
   display: block;
-}
+} */
 
 .social-icon {
   text-align: right;
