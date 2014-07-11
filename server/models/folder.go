@@ -21,7 +21,7 @@ type Folder struct {
 }
 
 func (fol *Folder) Create() {
-	fol.Id = uniuri.NewLen(5)
+	fol.Id = uniuri.NewLen(7)
 	fol.Files = []*File{}
 	fol.CreatedAt = time.Now()
 	fol.ExpiresAt = fol.CreatedAt.Add(time.Duration(fol.Expiry) * time.Hour)

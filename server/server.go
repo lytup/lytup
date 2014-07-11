@@ -44,12 +44,14 @@ func main() {
 
 	m.Get("/ws", websocket.Handler(wsHandler).ServeHTTP)
 
-	//*******
-	// Users
-	//*******
 	m.Group("/api", func(r martini.Router) {
+		//*******
+		// Users
+		//*******
 		r.Post("/users", binding.Bind(models.User{}), routes.CreateUser)
 		r.Post("/users/login", binding.Bind(models.User{}), routes.Login)
+
+		r.Get("/folders/:id", routes.FindFolderById)
 	})
 
 	m.Group("/api", func(r martini.Router) {
@@ -63,7 +65,6 @@ func main() {
 		//*********
 		r.Post("/folders", binding.Bind(models.Folder{}), routes.CreateFolder)
 		r.Get("/folders", routes.FindFolders)
-		r.Get("/folders/:id", routes.FindFolderById)
 		r.Patch("/folders/:id", binding.Bind(models.Folder{}),
 			routes.UpdateFolder)
 		r.Delete("/folders/:id", routes.DeleteFolder)
@@ -84,8 +85,8 @@ func main() {
 	// Upload / Download
 	//*******************
 	m.Post("/u", routes.Upload, routes.ValidateToken)
-	m.Get("/d/:id", routes.Download, routes.ValidateToken)
-	m.Get("/d/:id/t", routes.DownloadThumbnail, routes.ValidateToken)
+	m.Get("/d/:id", routes.Download)
+	m.Get("/d/:id/t", routes.DownloadThumbnail)
 
 	//*************
 	// ImageMagick

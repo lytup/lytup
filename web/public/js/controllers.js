@@ -107,16 +107,17 @@ angular.module('lytup.controllers', [])
         });
       };
 
-      $scope.fileIconClass = function(type) {
-        return /image/.test(type) ? 'fa-file-image-o' :
-          /audio/.test(type) ? 'fa-file-audio-o' :
-          /video/.test(type) ? 'fa-file-video-o' :
-          /document/.test(type) ? 'fa-file-word-o' :
-          /sheet/.test(type) ? 'fa-file-excel-o' :
-          /presentation/.test(type) ? 'fa-file-powerpoint-o' :
-          /pdf/.test(type) ? 'fa-file-pdf-o' :
-          /zip/.test(type) ? 'fa-file-archive-o' :
-          'fa-file-o';
+      $scope.fileIcon = function(typ) {
+        return /image/.test(typ) ? 'fa-file-image-o' :
+          /audio/.test(typ) ? 'fa-file-audio-o' :
+          /video/.test(typ) ? 'fa-file-video-o' :
+          /wordprocessingml/.test(typ) ? 'fa-file-word-o' :
+          /spreadsheetml/.test(typ) ? 'fa-file-excel-o' :
+          /presentationml/.test(typ) ? 'fa-file-powerpoint-o' :
+          /pdf/.test(typ) ? 'fa-file-pdf-o' :
+          /text/.test(typ) ? 'fa-file-text-o' :
+          /zip/.test(typ) ? 'fa-file-archive-o' :
+          '';
       };
 
       $scope.deleteFile = function(id) {
@@ -143,9 +144,7 @@ angular.module('lytup.controllers', [])
         }).success(function(file) {
           _.assign(f, _.omit(file, 'createdAt')); // https://code.google.com/p/go/issues/detail?id=5218
           // Update file
-          f.patch({
-            loaded: 100
-          });
+          f.patch(_.pick(f, 'loaded'));
         });
       }
     }

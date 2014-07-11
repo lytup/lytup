@@ -22,7 +22,7 @@ type File struct {
 }
 
 func (file *File) Create(folId string) {
-	file.Id = uniuri.NewLen(5)
+	file.Id = uniuri.NewLen(7)
 	file.CreatedAt = time.Now()
 
 	db := db.NewDb("folders")
