@@ -11,14 +11,14 @@ import (
 )
 
 type File struct {
-	Id           string    `json:"id,omitempty" bson:"id"`
-	Name         string    `json:"name,omitempty" bson:"name"`
-	Size         uint64    `json:"size,omitempty" bson:"size"`
-	Type         string    `json:"type,omitempty" bson:"type"`
-	Loaded       uint8     `json:"loaded,omitempty" bson:"loaded"`
-	Uri          string    `json:"uri,omitempty" bson:"uri"`
-	ThumbnailUri string    `json:"thumbnailUri,omitempty" bson:"thumbnailUri"`
-	CreatedAt    time.Time `json:"createdAt,omitempty" bson:"createdAt"`
+	Id        string    `json:"id,omitempty" bson:"id"`
+	Name      string    `json:"name,omitempty" bson:"name"`
+	Size      uint64    `json:"size,omitempty" bson:"size"`
+	Type      string    `json:"type,omitempty" bson:"type"`
+	Loaded    uint8     `json:"loaded,omitempty" bson:"loaded"`
+	Uri       string    `json:"uri,omitempty" bson:"uri"`
+	Thumbnail string    `json:"thumbnail,omitempty" bson:"thumbnail"`
+	CreatedAt time.Time `json:"createdAt,omitempty" bson:"createdAt"`
 }
 
 func (file *File) Create(folId string) {
@@ -61,8 +61,8 @@ func (file *File) Update(folId string) {
 		m["files.$.uri"] = file.Uri
 	}
 
-	if file.ThumbnailUri != "" {
-		m["files.$.thumbnailUri"] = file.ThumbnailUri
+	if file.Thumbnail != "" {
+		m["files.$.thumbnail"] = file.Thumbnail
 	}
 
 	db := db.NewDb("folders")

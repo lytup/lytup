@@ -93,16 +93,17 @@ angular.module('lytup.controllers', [])
       $scope.addFiles = function(files) {
         var fol = $scope.folder;
 
-        _.forEach(files, function(file) {
-          var f = _.pick(file, 'name', 'size', 'type');
-          var i = fol.files.push(f) - 1;
+        // Concatenate in the same order to display on top
+        fol.files = files.concat(fol.files)
 
-          file.i = i; // Store the index for later user
+        _.forEach(files, function(f, i) {
+          var file = _.pick(f, 'name', 'size', 'type');
 
           // Create file
-          fol.post('files', f).then(function(f) {
-            fol.files[i] = f;
-            upload(file);
+          fol.post('files', file).then(function(file) {
+            // Replace file from the server
+            fol.files[i] = file;
+            upload(file, f);
           });
         });
       };
@@ -128,23 +129,22 @@ angular.module('lytup.controllers', [])
         });
       };
 
-      function upload(file) {
+      function upload(file, f) {
         var fol = $scope.folder;
-        var f = fol.files[file.i];
 
         $upload.upload({
-          url: '/u',
-          file: file,
+          url: '/u/',
+          file: f,
           data: {
             folId: fol.id,
-            fileId: f.id
+            fileId: file.id
           }
         }).progress(function(evt) {
-          f.loaded = Math.round(evt.loaded / evt.total * 100);
-        }).success(function(file) {
-          _.assign(f, _.omit(file, 'createdAt')); // https://code.google.com/p/go/issues/detail?id=5218
+          file.loaded = Math.round(evt.loaded / evt.total * 100);
+        }).success(function(f) {
+          _.assign(file, _.omit(f, 'createdAt')); // https://code.google.com/p/go/issues/detail?id=5218
           // Update file
-          f.patch(_.pick(f, 'loaded'));
+          file.patch(_.pick(file, 'loaded'));
         });
       }
     }

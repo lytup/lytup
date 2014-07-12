@@ -1,38 +1,45 @@
 package utils
 
 import (
-	"github.com/gographics/imagick/imagick"
-	"os"
-	"path"
+	"encoding/base64"
+	"log"
+	"os/exec"
 )
 
-func CreateThumbnail(folPath, filePath, fileName, typ string) (bool, error) {
-	// Only image or video
-	if !IsImage(typ) && !IsVideo(typ) {
-		return false, nil
-	}
+const (
+	SIZE = "200x200"
+)
 
-	if IsVideo(typ) {
-		filePath += "[10]" // 10th frame
-		fileName += ".jpg" // Save as image
-	}
-
-	mw := imagick.NewMagickWand()
-	defer mw.Destroy()
-
-	err := mw.ReadImage(filePath)
+func imageThumbnail(file string) (string, error) {
+	cmd := exec.Command("gm", "convert", "-size", SIZE, file, "-resize",
+		SIZE+"^", "+profile", "*", "-gravity", "Center", "-extent", SIZE, "-")
+	out, err := cmd.Output()
 	if err != nil {
-		return false, err
+		return "", err
 	}
+	return base64.StdEncoding.EncodeToString(out), nil
+}
 
-	tPath := path.Join(folPath, "t") // Thumbnail path
-	err = os.MkdirAll(tPath, 0755)
+func videoThumbnail(file string) (string, error) {
+	log.Println(file)
+	cmd := exec.Command("convert", file, "-resize", SIZE+"^", "-strip",
+		"-gravity", "Center", "-extent", SIZE, "jpg:-")
+	out, err := cmd.Output()
+	log.Println("Video", err)
+
 	if err != nil {
-		return false, err
+		return "", err
 	}
+	return base64.StdEncoding.EncodeToString(out), nil
+}
 
-	mw.ResizeImage(200, 200, imagick.FILTER_UNDEFINED, 1)
-	mw.WriteImage(path.Join(tPath, fileName))
-
-	return true, nil
+func CreateThumbnail(file, typ string) (string, error) {
+	if IsImage(typ) {
+		return imageThumbnail(file)
+	} else if IsVideo(typ) {
+		file = file + "[10]" // 10th frame
+		return videoThumbnail(file)
+	} else {
+		return "", nil
+	}
 }

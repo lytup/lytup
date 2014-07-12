@@ -90,15 +90,7 @@ func Upload(req *http.Request, params martini.Params, ren render.Render) {
 			io.Copy(f, part)
 
 			// Create thumbnail
-			created, err := utils.CreateThumbnail(folPath, filePath, fileName,
-				part.Header.Get("Content-Type"))
-			if err != nil {
-				panic(err)
-			}
-
-			if created {
-				file.ThumbnailUri = file.Uri + "/t"
-			}
+			file.Thumbnail, err = utils.CreateThumbnail(filePath, part.Header.Get("Content-Type"))
 
 			file.Update(folId)
 		}
