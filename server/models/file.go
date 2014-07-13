@@ -21,13 +21,13 @@ type File struct {
 	CreatedAt time.Time `json:"createdAt,omitempty" bson:"createdAt"`
 }
 
-func (file *File) Create(folId string) {
+func (file *File) Create(folId string, usr *User) {
 	file.Id = uniuri.NewLen(7)
 	file.CreatedAt = time.Now()
 
 	db := db.NewDb("folders")
 	defer db.Session.Close()
-	err := db.Collection.Update(bson.M{"id": folId},
+	err := db.Collection.Update(bson.M{"id": folId, "userId": usr.Id},
 		bson.M{"$set": bson.M{"updatedAt": time.Now()},
 			"$push": bson.M{"files": file}})
 	if err != nil {
@@ -49,7 +49,7 @@ func FindFileById(id string) (string, *File) {
 	return fol.Id, fol.Files[0]
 }
 
-func (file *File) Update(folId string) {
+func (file *File) Update(folId string, usr *User) {
 	now := time.Now()
 	m := bson.M{"updatedAt": now}
 
@@ -67,18 +67,18 @@ func (file *File) Update(folId string) {
 
 	db := db.NewDb("folders")
 	defer db.Session.Close()
-	err := db.Collection.Update(bson.M{"id": folId, "files.id": file.Id},
-		bson.M{"$set": m})
+	err := db.Collection.Update(bson.M{"id": folId, "userId": usr.Id,
+		"files.id": file.Id}, bson.M{"$set": m})
 	if err != nil {
 		panic(err)
 	}
 }
 
-func DeleteFile(folId, fileId string) {
+func DeleteFile(folId, fileId string, usr *User) {
 	db := db.NewDb("folders")
 	defer db.Session.Close()
 	fol := Folder{}
-	_, err := db.Collection.Find(bson.M{"id": folId, "files.id": fileId}).
+	_, err := db.Collection.Find(bson.M{"id": folId, "userId": usr.Id, "files.id": fileId}).
 		Select(bson.M{"files": bson.M{"$elemMatch": bson.M{"id": fileId}}}).
 		Apply(mgo.Change{Update: bson.M{"$pull": bson.M{"files": bson.M{"id": fileId}}}}, &fol)
 	if err != nil {

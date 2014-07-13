@@ -22,23 +22,29 @@ func CreateFolder(fol models.Folder, ren render.Render, usr *models.User) {
 }
 
 func FindFolders(ren render.Render, usr *models.User) {
-	folders := models.FindFolders()
+	folders := models.FindFolders(usr)
 	ren.JSON(http.StatusOK, folders)
 }
 
-func FindFolderById(params martini.Params, ren render.Render) {
-	fol := models.FindFolderById(params["id"])
+func FindFolderById(rw http.ResponseWriter, params martini.Params, ren render.Render) {
+	fol, err := models.FindFolderById(params["id"])
+	if err != nil {
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
 	ren.JSON(http.StatusOK, fol)
 }
 
-func UpdateFolder(ren render.Render, params martini.Params, fol models.Folder) {
+func UpdateFolder(ren render.Render, params martini.Params, fol models.Folder,
+	usr *models.User) {
 	fol.Id = params["id"]
-	fol.Update()
+	fol.Update(usr)
 	ren.JSON(http.StatusOK, fol)
 }
 
-func DeleteFolder(rw http.ResponseWriter, params martini.Params) {
-	models.DeleteFolder(params["id"])
+func DeleteFolder(rw http.ResponseWriter, params martini.Params,
+	usr *models.User) {
+	models.DeleteFolder(params["id"], usr)
 	rw.WriteHeader(http.StatusOK)
 }
 
@@ -78,7 +84,14 @@ func DownloadThumbnail(rw http.ResponseWriter, params martini.Params) {
 
 func downloadFolder(id string, rw http.ResponseWriter) {
 	zw := zip.NewWriter(rw)
-	fol := models.FindFolderById(id)
+	fol, err := models.FindFolderById(id)
+
+	if err != nil {
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	rw.WriteHeader(http.StatusNotFound)
 
 	for _, file := range fol.Files {
 		fw, err := zw.Create(file.Name)
@@ -96,7 +109,7 @@ func downloadFolder(id string, rw http.ResponseWriter) {
 		io.Copy(fw, f)
 	}
 
-	err := zw.Close()
+	err = zw.Close()
 	if err != nil {
 		panic(err)
 	}

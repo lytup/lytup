@@ -3,11 +3,12 @@ package utils
 import (
 	"code.google.com/p/go.crypto/pbkdf2"
 	"crypto/sha256"
+	"os"
 )
 
 var (
-	SALT = []byte("Aiv5chie")
-	KEY  = []byte("uSee4gee")
+	SALT = []byte(os.Getenv("SALT"))
+	KEY  = []byte(os.Getenv("KEY"))
 )
 
 func HashPassword(pwd []byte) []byte {

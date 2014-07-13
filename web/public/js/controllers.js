@@ -167,6 +167,7 @@ angular.module('lytup.controllers', [])
     'Restangular',
     function($scope, $window, $log, $modalInstance, Restangular) {
       $log.info('Signup modal controller');
+      $scope.user = {};
 
       $scope.signup = function(user) {
         Restangular.all('users').post(user).then(function(usr) {
@@ -185,6 +186,7 @@ angular.module('lytup.controllers', [])
     'Restangular',
     function($scope, $window, $log, $modalInstance, Restangular) {
       $log.info('Signin modal controller');
+      $scope.user = {};
 
       $scope.signin = function(user) {
         Restangular.all('users').all('login').post(user)

@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/base64"
-	"log"
 	"os/exec"
 )
 
@@ -21,11 +20,9 @@ func imageThumbnail(file string) (string, error) {
 }
 
 func videoThumbnail(file string) (string, error) {
-	log.Println(file)
 	cmd := exec.Command("convert", file, "-resize", SIZE+"^", "-strip",
 		"-gravity", "Center", "-extent", SIZE, "jpg:-")
 	out, err := cmd.Output()
-	log.Println("Video", err)
 
 	if err != nil {
 		return "", err

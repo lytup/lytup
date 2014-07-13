@@ -34,29 +34,29 @@ func (fol *Folder) Create() {
 	}
 }
 
-func FindFolders() *[]Folder {
+func FindFolders(usr *User) *[]Folder {
 	db := db.NewDb("folders")
 	defer db.Session.Close()
 	folders := []Folder{}
-	err := db.Collection.Find(nil).All(&folders)
+	err := db.Collection.Find(bson.M{"userId": usr.Id}).All(&folders)
 	if err != nil {
 		panic(err)
 	}
 	return &folders
 }
 
-func FindFolderById(id string) *Folder {
+func FindFolderById(id string) (*Folder, error) {
 	db := db.NewDb("folders")
 	defer db.Session.Close()
 	fol := Folder{}
 	err := db.Collection.Find(bson.M{"id": id}).One(&fol)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return &fol
+	return &fol, nil
 }
 
-func (fol *Folder) Update() {
+func (fol *Folder) Update(usr *User) {
 	now := time.Now()
 	m := bson.M{"updatedAt": now}
 
@@ -72,17 +72,17 @@ func (fol *Folder) Update() {
 
 	db := db.NewDb("folders")
 	defer db.Session.Close()
-	err := db.Collection.Update(bson.M{"id": fol.Id},
+	err := db.Collection.Update(bson.M{"id": fol.Id, "userId": usr.Id},
 		bson.M{"$set": m})
 	if err != nil {
 		panic(err)
 	}
 }
 
-func DeleteFolder(id string) {
+func DeleteFolder(id string, usr *User) {
 	db := db.NewDb("folders")
 	defer db.Session.Close()
-	err := db.Collection.Remove(bson.M{"id": id})
+	err := db.Collection.Remove(bson.M{"id": id, "userId": usr.Id})
 	if err != nil {
 		panic(err)
 	}

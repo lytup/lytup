@@ -17,8 +17,9 @@ const (
 	UPLOAD_DIR = "/tmp"
 )
 
-func CreateFile(params martini.Params, ren render.Render, file models.File) {
-	file.Create(params["folId"])
+func CreateFile(params martini.Params, ren render.Render, file models.File,
+	usr *models.User) {
+	file.Create(params["folId"], usr)
 	ren.JSON(http.StatusCreated, file)
 }
 
@@ -31,18 +32,20 @@ func FindFileById(params martini.Params, ren render.Render) {
 	ren.JSON(http.StatusOK, file)
 }
 
-func UpdateFile(rw http.ResponseWriter, params martini.Params, file models.File) {
+func UpdateFile(rw http.ResponseWriter, params martini.Params, file models.File,
+	usr *models.User) {
 	file.Id = params["fileId"]
-	file.Update(params["folId"])
+	file.Update(params["folId"], usr)
 	rw.WriteHeader(http.StatusOK)
 }
 
-func DeleteFile(rw http.ResponseWriter, params martini.Params) {
-	models.DeleteFile(params["folId"], params["fileId"])
+func DeleteFile(rw http.ResponseWriter, params martini.Params, usr *models.User) {
+	models.DeleteFile(params["folId"], params["fileId"], usr)
 	rw.WriteHeader(http.StatusOK)
 }
 
-func Upload(req *http.Request, params martini.Params, ren render.Render) {
+func Upload(req *http.Request, rw http.ResponseWriter, params martini.Params,
+	ren render.Render, usr *models.User) {
 	var (
 		folId string
 		file  = &models.File{}
@@ -67,6 +70,12 @@ func Upload(req *http.Request, params martini.Params, ren render.Render) {
 
 			if name == "folId" {
 				folId = val
+				// Verify if folder belongs to the user
+				_, err := models.FindFolderById(folId)
+				if err != nil {
+					rw.WriteHeader(http.StatusUnauthorized)
+					return
+				}
 			} else if name == "fileId" {
 				file.Id = val
 				file.Uri = "/d/" + file.Id
@@ -92,7 +101,7 @@ func Upload(req *http.Request, params martini.Params, ren render.Render) {
 			// Create thumbnail
 			file.Thumbnail, err = utils.CreateThumbnail(filePath, part.Header.Get("Content-Type"))
 
-			file.Update(folId)
+			file.Update(folId, usr)
 		}
 	}
 

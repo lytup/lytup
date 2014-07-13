@@ -83,7 +83,7 @@ func main() {
 	//*******************
 	// Upload / Download
 	//*******************
-	m.Post("/u", routes.Upload, routes.ValidateToken)
+	m.Post("/u", routes.ValidateToken, routes.Upload)
 	m.Get("/d/:id", routes.Download)
 	m.Get("/d/:id/t", routes.DownloadThumbnail)
 
