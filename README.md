@@ -8,4 +8,4 @@
 Email: demo@labstack.com  
 Password: demo
 
-**New registeration might be deleted form time to time**
+**New accounts and data might be deleted form time to time**
