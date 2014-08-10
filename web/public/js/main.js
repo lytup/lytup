@@ -50,5 +50,16 @@ angular.module('lytup', [
   ]).run(['$rootScope',
     function($rootScope) {
       $rootScope.BASE_URI = location.protocol + '//' + location.hostname + (location.port && ':' + location.port);
+
+      $rootScope.MESSAGE = function(code) {
+        return {
+          blankName: 'A name is required',
+          blankEmail: 'An email is required',
+          invalidEmail: 'Doesn\'t look like a valid email',
+          blankPassword: 'Password cannot be blank',
+          invalidPassword: 'Password must be at least 6 characters',
+          blankExpiry: 'An expiry is required'
+        }[code];
+      }
     }
   ]);

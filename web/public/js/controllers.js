@@ -68,6 +68,47 @@ angular.module('lytup.controllers', [])
           });
         });
       };
+
+      /************
+      / Validations
+      /************/
+      $scope.validateName = function(form, errors) {
+        errors.blankName = !form.name.$viewValue;
+      };
+
+      $scope.validateEmail = function(form, errors) {
+        errors.blankEmail = !form.email.$viewValue;
+        errors.invalidEmail = form.email.$viewValue && form.email.$invalid;
+      };
+
+      $scope.validatePassword = function(form, errors) {
+        errors.blankPassword = !form.password.$viewValue;
+        errors.invalidPassword = form.password.$viewValue && form.password.$invalid;
+      };
+
+      $scope.validateExpiry = function(form, errors) {
+        errors.blankExpiry = !form.expiry.$viewValue;
+      };
+
+      $scope.validate = function(form, errors) {
+        if (form.name) {
+          $scope.validateName(form, errors);
+        }
+        if (form.email) {
+          $scope.validateEmail(form, errors);
+        }
+        if (form.password) {
+          $scope.validatePassword(form, errors);
+        }
+        if (form.expiry) {
+          $scope.validateExpiry(form, errors);
+        }
+        // Continue if form is pristine with expiry field
+        if (form.$pristine && !form.expiry || form.$invalid) {
+          return false;
+        }
+        return true;
+      };
     }
   ])
   .controller('FolderCtrl', [
@@ -79,7 +120,10 @@ angular.module('lytup.controllers', [])
     '$upload',
     function($scope, $routeParams, $log, $modal, Restangular, $upload) {
       $log.info('Folder controller');
-      $scope.folder = Restangular.one('folders', $routeParams.id).get().$object;
+      // Look into folders or get it from the server
+      $scope.folder = _.find($scope.folders, {
+        id: $routeParams.id
+      }) || Restangular.one('folders', $routeParams.id).get().$object;
 
       $scope.folderModal = function() {
         $modal.open({
@@ -168,9 +212,10 @@ angular.module('lytup.controllers', [])
     function($scope, $window, $log, $modalInstance, Restangular) {
       $log.info('Signup modal controller');
       $scope.user = {};
+      $scope.errors = {};
 
-      $scope.signup = function(user) {
-        Restangular.all('users').post(user).then(function(usr) {
+      $scope.signup = function() {
+        Restangular.all('users').post($scope.user).then(function(usr) {
           $window.localStorage.setItem('token', usr.token);
           $scope.$parent.user = usr;
           $modalInstance.close();
@@ -187,9 +232,10 @@ angular.module('lytup.controllers', [])
     function($scope, $window, $log, $modalInstance, Restangular) {
       $log.info('Signin modal controller');
       $scope.user = {};
+      $scope.errors = {};
 
-      $scope.signin = function(user) {
-        Restangular.all('users').all('login').post(user)
+      $scope.signin = function() {
+        Restangular.all('users').all('login').post($scope.user)
           .then(function(usr) {
             $window.localStorage.setItem('token', usr.token);
             $scope.$parent.user = usr;
@@ -222,6 +268,7 @@ angular.module('lytup.controllers', [])
         val: 168,
         lbl: '1 week'
       }];
+      $scope.errors = {};
 
       $scope.save = function(folder) {
         if (!folder.id) {
