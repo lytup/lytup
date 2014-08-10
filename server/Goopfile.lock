@@ -1,3 +1,4 @@
+github.com/golang/glog #d1c4472bf2efd3826f2b5bdcc02d8416798d678c
 github.com/dchest/uniuri #bc4af7603a3e0ce9d58009f82fca481555182e1c
 github.com/dgrijalva/jwt-go #1482919d15c7cbc3c48db6132a5b30d1a9c79bcc
 github.com/go-martini/martini #49411a5b646861ad29a6ddd5351717a0a9c49b94

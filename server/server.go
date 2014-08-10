@@ -3,13 +3,13 @@ package main
 import (
 	"code.google.com/p/go.net/websocket"
 	"github.com/go-martini/martini"
+	"github.com/golang/glog"
 	"github.com/labstack/lytup/server/models"
 	"github.com/labstack/lytup/server/routes"
 	"github.com/martini-contrib/binding"
 	"github.com/martini-contrib/cors"
 	"github.com/martini-contrib/render"
 	"io"
-	"log"
 	"net/http"
 )
 
@@ -87,5 +87,5 @@ func main() {
 	m.Get("/d/:id", routes.Download)
 	m.Get("/d/:id/t", routes.DownloadThumbnail)
 
-	log.Fatal(http.ListenAndServe("localhost:3000", m))
+	glog.Fatal(http.ListenAndServe("localhost:3000", m))
 }

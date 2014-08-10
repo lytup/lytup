@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/golang/glog"
 	"labix.org/v2/mgo"
 )
 
@@ -14,12 +15,11 @@ type Db struct {
 func init() {
 	sess, err := mgo.Dial("localhost")
 	if err != nil {
-		panic(err)
+		glog.Fatal(err)
 	}
 	session = sess
 }
 
 func NewDb(collection string) *Db {
-	db := Db{session.Copy(), session.DB("lytup").C(collection)}
-	return &db
+	return &Db{session.Copy(), session.DB("lytup").C(collection)}
 }

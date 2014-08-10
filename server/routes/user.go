@@ -3,8 +3,9 @@ package routes
 import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-martini/martini"
+	"github.com/golang/glog"
 	"github.com/labstack/lytup/server/models"
-	"github.com/labstack/lytup/server/utils"
+	U "github.com/labstack/lytup/server/utils"
 	"github.com/martini-contrib/render"
 	"labix.org/v2/mgo/bson"
 	"net/http"
@@ -23,24 +24,39 @@ import (
 // 	log.Println(string(PRIVATE_KEY))
 // }
 
-func CreateUser(ren render.Render, usr models.User) {
-	usr.HashedPassword = utils.HashPassword([]byte(usr.Password))
-	usr.Create()
-	ren.JSON(http.StatusCreated, usr.Render())
+func CreateUser(rw http.ResponseWriter, ren render.Render, usr models.User) {
+	usr.HashedPassword = U.HashPassword([]byte(usr.Password))
+	if err := usr.Create(); err != nil {
+		glog.Error(err)
+		rw.WriteHeader(http.StatusInternalServerError)
+	} else {
+		ren.JSON(http.StatusCreated, usr.Render())
+	}
+
 }
 
-func FindUser(ren render.Render, usr *models.User) {
-	usr.Find()
-	ren.JSON(http.StatusOK, usr.Render())
+func FindUser(rw http.ResponseWriter, ren render.Render, usr *models.User) {
+	if err := usr.Find(); err != nil {
+		glog.Error(err)
+		if err.Error() == "not found" {
+			rw.WriteHeader(http.StatusNotFound)
+		}
+	} else {
+		ren.JSON(http.StatusOK, usr.Render())
+	}
 }
 
 func Login(rw http.ResponseWriter, ren render.Render, usr models.User) {
-	err := usr.Login()
-	if err != nil {
-		rw.WriteHeader(http.StatusNotFound)
-		return
+	if err := usr.Login(); err != nil {
+		glog.Error(err)
+		if err.Error() == "not found" {
+			rw.WriteHeader(http.StatusNotFound)
+		} else {
+			rw.WriteHeader(http.StatusInternalServerError)
+		}
+	} else {
+		ren.JSON(http.StatusOK, usr.Render())
 	}
-	ren.JSON(http.StatusOK, usr.Render())
 }
 
 func ValidateToken(req *http.Request, rw http.ResponseWriter, ctx martini.Context) {
@@ -48,7 +64,7 @@ func ValidateToken(req *http.Request, rw http.ResponseWriter, ctx martini.Contex
 	if len(parts) == 2 {
 		token := parts[1]
 		t, err := jwt.Parse(token, func(t *jwt.Token) ([]byte, error) {
-			return utils.KEY, nil
+			return U.KEY, nil
 		})
 		if err == nil && t.Valid {
 			id := t.Claims["usr-id"].(string)

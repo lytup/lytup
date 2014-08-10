@@ -3,7 +3,7 @@ package models
 import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/lytup/server/db"
-	"github.com/labstack/lytup/server/utils"
+	U "github.com/labstack/lytup/server/utils"
 	"labix.org/v2/mgo/bson"
 	"time"
 )
@@ -39,20 +39,22 @@ func (usr *User) Create() error {
 	return nil
 }
 
-func (usr *User) Find() {
+func (usr *User) Find() error {
 	db := db.NewDb("users")
 	defer db.Session.Close()
 	err := db.Collection.FindId(usr.Id).One(usr)
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
 func (usr *User) Login() error {
 	db := db.NewDb("users")
 	defer db.Session.Close()
 	err := db.Collection.Find(bson.M{"email": usr.Email,
-		"password": utils.HashPassword([]byte(usr.Password))}).
+		"password": U.HashPassword([]byte(usr.Password))}).
 		One(usr)
 	if err != nil {
 		return err
@@ -61,11 +63,10 @@ func (usr *User) Login() error {
 	token := jwt.New(jwt.GetSigningMethod("HS256"))
 	token.Claims["exp"] = time.Now().Add(120 * time.Hour).Unix()
 	token.Claims["usr-id"] = usr.Id
-	usr.Token, err = token.SignedString(utils.KEY)
+	usr.Token, err = token.SignedString(U.KEY)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 

@@ -383,10 +383,10 @@ body {
   background-color: rgba(17, 17, 17, 0.5);
 }
 .grid-item-holder .grid-item-top a {
-  color: #ffffff;
+  color: #dddddd;
 }
 .grid-item-holder .grid-item-top a:hover {
-  color: #e6e6e6;
+  color: #c4c4c4;
 }
 .grid-item-holder .grid-item-progress {
   position: absolute;
