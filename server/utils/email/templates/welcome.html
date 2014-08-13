@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to Lytup</title>
+</head>
+
+<body style="font: 13px 'Lucida Grande', Arial, sans-serif;">
+  Hi {{.name}},
+
+  <p>
+    You recently signed up for Lytup. To confirm your email address, follow this link:
+    <br>http://lytup.com/confirm/{{.id}}
+  </p>
+
+  <p>
+    Thanks,
+    <br>The Lytup Team
+  </p>
+
+  <p style="margin-top: 25px; padding-top: 3px; border-top: 1px solid #ccc;
+      font-size: 11px; color: #999;">
+    This message was intended for {{.email}}. If this was in error, please <a href="">contact us</a> or <a href="">opt out</a>.
+    <!-- LabStack's offices are located at 1098 Harrison St, San Francisco, CA 94103 -->
+  </p>
+</body>
+
+</html>
