@@ -6,8 +6,10 @@ import (
 	"github.com/golang/glog"
 	"github.com/labstack/lytup/server/models"
 	U "github.com/labstack/lytup/server/utils"
+	E "github.com/labstack/lytup/server/utils/email"
 	"github.com/martini-contrib/render"
-	"labix.org/v2/mgo/bson"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"strings"
 )
@@ -25,11 +27,15 @@ import (
 // }
 
 func CreateUser(rw http.ResponseWriter, ren render.Render, usr models.User) {
-	usr.HashedPassword = U.HashPassword([]byte(usr.Password))
 	if err := usr.Create(); err != nil {
 		glog.Error(err)
-		rw.WriteHeader(http.StatusInternalServerError)
+		data := map[string]interface{}{"error": err}
+		if mgo.IsDup(err) {
+			data["error"] = "duplicate"
+		}
+		ren.JSON(http.StatusInternalServerError, data)
 	} else {
+		E.Welcome(usr)
 		ren.JSON(http.StatusCreated, usr.Render())
 	}
 

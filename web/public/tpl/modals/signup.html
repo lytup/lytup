@@ -12,13 +12,16 @@
         {{MESSAGE('blankName')}}
       </p>
     </div>
-    <div class="form-group" ng-class="{'has-error': errors.blankEmail || errors.invalidEmail}">
+    <div class="form-group" ng-class="{'has-error': errors.blankEmail || errors.invalidEmail || errors.registeredEmail}">
       <input type="email" name="email" class="form-control" placeholder="Email" required ng-model="user.email" ng-blur="validateEmail(form, errors)">
       <p ng-show="errors.blankEmail" class="help-block">
         {{MESSAGE('blankEmail')}}
       </p>
       <p ng-show="errors.invalidEmail" class="help-block">
         {{MESSAGE('invalidEmail')}}
+      </p>
+      <p ng-show="errors.registeredEmail" class="help-block">
+        {{MESSAGE('registeredEmail')}}
       </p>
     </div>
     <div class="form-group" ng-class="{'has-error': errors.blankPassword || errors.invalidPassword}">
@@ -30,10 +33,10 @@
         {{MESSAGE('invalidPassword')}}
       </p>
     </div>
-  </div>
-  <div class="modal-footer">
-    <button type="submit" class="btn btn-primary">
-      Sign Up
-    </button>
+    <div class="form-group text-center">
+      <button type="submit" class="btn btn-primary">
+        Sign Up
+      </button>
+    </div>
   </div>
 </form>

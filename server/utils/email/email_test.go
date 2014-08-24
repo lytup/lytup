@@ -2,7 +2,7 @@ package email
 
 import (
 	"github.com/labstack/lytup/server/models"
-	"labix.org/v2/mgo/bson"
+	"gopkg.in/mgo.v2/bson"
 	"testing"
 )
 

@@ -2,9 +2,9 @@ package models
 
 import (
 	"github.com/dchest/uniuri"
-	"github.com/labstack/lytup/server/db"
-	"labix.org/v2/mgo"
-	"labix.org/v2/mgo/bson"
+	L "github.com/labstack/lytup/server/lytup"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"os"
 	"path"
 	"time"
@@ -25,7 +25,7 @@ func (file *File) Create(folId string, usr *User) {
 	file.Id = uniuri.NewLen(7)
 	file.CreatedAt = time.Now()
 
-	db := db.NewDb("folders")
+	db := L.NewDb("folders")
 	defer db.Session.Close()
 	err := db.Collection.Update(bson.M{"id": folId, "userId": usr.Id},
 		bson.M{"$set": bson.M{"updatedAt": time.Now()},
@@ -36,7 +36,7 @@ func (file *File) Create(folId string, usr *User) {
 }
 
 func FindFileById(id string) (string, *File) {
-	db := db.NewDb("folders")
+	db := L.NewDb("folders")
 	defer db.Session.Close()
 	fol := Folder{}
 	err := db.Collection.Find(bson.M{"files.id": id}).
@@ -65,7 +65,7 @@ func (file *File) Update(folId string, usr *User) {
 		m["files.$.thumbnail"] = file.Thumbnail
 	}
 
-	db := db.NewDb("folders")
+	db := L.NewDb("folders")
 	defer db.Session.Close()
 	err := db.Collection.Update(bson.M{"id": folId, "userId": usr.Id,
 		"files.id": file.Id}, bson.M{"$set": m})
@@ -75,7 +75,7 @@ func (file *File) Update(folId string, usr *User) {
 }
 
 func DeleteFile(folId, fileId string, usr *User) {
-	db := db.NewDb("folders")
+	db := L.NewDb("folders")
 	defer db.Session.Close()
 	fol := Folder{}
 	_, err := db.Collection.Find(bson.M{"id": folId, "userId": usr.Id, "files.id": fileId}).

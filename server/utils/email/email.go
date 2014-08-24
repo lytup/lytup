@@ -2,13 +2,16 @@ package email
 
 import (
 	"bytes"
+	"errors"
+	"github.com/golang/glog"
+	L "github.com/labstack/lytup/server/lytup"
 	"github.com/labstack/lytup/server/models"
 	"html/template"
 )
 
 const (
-	FROM_NAME  string = "Lytup"
-	FROM_EMAIL string = "no-reply@lytup.com"
+	fromName  string = "Lytup"
+	fromEmail string = "no-reply@lytup.com"
 )
 
 type To struct {
@@ -29,8 +32,12 @@ type Email interface {
 	Send(Message) error
 }
 
-func NewEmail() Email {
-	return NewMandrill()
+func NewEmail() (Email, error) {
+	e := L.Cfg.Email
+	if e.Provider == "mandrill" {
+		return NewMandrill(e), nil
+	}
+	return nil, errors.New("Email provider not configured")
 }
 
 func Welcome(usr models.User) error {
@@ -41,21 +48,24 @@ func Welcome(usr models.User) error {
 	}
 
 	var b bytes.Buffer
-	o := map[string]string{
+	m := map[string]string{
 		"name": usr.Name,
 		"id":   usr.Id.Hex(),
 	}
-	err = t.Execute(&b, o)
+	err = t.Execute(&b, m)
 	if err != nil {
 		return err
 	}
 
-	email := NewEmail()
+	email, err := NewEmail()
+	if err != nil {
+		glog.Fatal(err)
+	}
 	msg := Message{
 		To:        []To{{Email: usr.Email, Name: usr.Email}},
 		Subject:   "Welcome to Lytup",
-		FromName:  FROM_NAME,
-		FromEmail: FROM_EMAIL,
+		FromName:  fromName,
+		FromEmail: fromEmail,
 		Html:      b.String(),
 	}
 	err = email.Send(msg)

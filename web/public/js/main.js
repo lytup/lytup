@@ -56,9 +56,11 @@ angular.module('lytup', [
           blankName: 'A name is required',
           blankEmail: 'An email is required',
           invalidEmail: 'Doesn\'t look like a valid email',
+          registeredEmail: 'This email is already registered',
           blankPassword: 'Password cannot be blank',
           invalidPassword: 'Password must be at least 6 characters',
-          blankExpiry: 'An expiry is required'
+          blankExpiry: 'An expiry is required',
+          loginFailed: 'Invalid email or password'
         }[code];
       }
     }

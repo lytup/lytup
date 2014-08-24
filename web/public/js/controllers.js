@@ -219,6 +219,10 @@ angular.module('lytup.controllers', [])
           $window.localStorage.setItem('token', usr.token);
           $scope.$parent.user = usr;
           $modalInstance.close();
+        }, function(res) {
+          if (res.data.error === 'duplicate') {
+            $scope.errors.registeredEmail = true;
+          }
         });
       };
     }
@@ -241,6 +245,10 @@ angular.module('lytup.controllers', [])
             $scope.$parent.user = usr;
             $scope.$parent.folders = Restangular.all('folders').getList().$object;
             $modalInstance.close();
+          }, function(res) {
+            if (res.status === 404) {
+              $scope.errors.loginFailed = true;
+            }
           });
       };
     }

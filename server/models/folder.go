@@ -1,9 +1,9 @@
 package models
 
 import (
-	"github.com/dchest/uniuri"
-	"github.com/labstack/lytup/server/db"
-	"labix.org/v2/mgo/bson"
+	L "github.com/labstack/lytup/server/lytup"
+	U "github.com/labstack/lytup/server/utils"
+	"gopkg.in/mgo.v2/bson"
 	"os"
 	"path"
 	"time"
@@ -21,12 +21,12 @@ type Folder struct {
 }
 
 func (fol *Folder) Create() {
-	fol.Id = uniuri.NewLen(7)
+	fol.Id = U.RandString(7)
 	fol.Files = []*File{}
 	fol.CreatedAt = time.Now()
 	fol.ExpiresAt = fol.CreatedAt.Add(time.Duration(fol.Expiry) * time.Hour)
 
-	db := db.NewDb("folders")
+	db := L.NewDb("folders")
 	defer db.Session.Close()
 	err := db.Collection.Insert(&fol)
 	if err != nil {
@@ -35,7 +35,7 @@ func (fol *Folder) Create() {
 }
 
 func FindFolders(usr *User) *[]Folder {
-	db := db.NewDb("folders")
+	db := L.NewDb("folders")
 	defer db.Session.Close()
 	folders := []Folder{}
 	err := db.Collection.Find(bson.M{"userId": usr.Id}).All(&folders)
@@ -46,7 +46,7 @@ func FindFolders(usr *User) *[]Folder {
 }
 
 func FindFolderById(id string) (*Folder, error) {
-	db := db.NewDb("folders")
+	db := L.NewDb("folders")
 	defer db.Session.Close()
 	fol := Folder{}
 	err := db.Collection.Find(bson.M{"id": id}).One(&fol)
@@ -70,7 +70,7 @@ func (fol *Folder) Update(usr *User) {
 		fol.ExpiresAt = m["expiresAt"].(time.Time)
 	}
 
-	db := db.NewDb("folders")
+	db := L.NewDb("folders")
 	defer db.Session.Close()
 	err := db.Collection.Update(bson.M{"id": fol.Id, "userId": usr.Id},
 		bson.M{"$set": m})
@@ -80,7 +80,7 @@ func (fol *Folder) Update(usr *User) {
 }
 
 func DeleteFolder(id string, usr *User) {
-	db := db.NewDb("folders")
+	db := L.NewDb("folders")
 	defer db.Session.Close()
 	err := db.Collection.Remove(bson.M{"id": id, "userId": usr.Id})
 	if err != nil {

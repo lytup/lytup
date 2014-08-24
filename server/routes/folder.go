@@ -3,12 +3,12 @@ package routes
 import (
 	"archive/zip"
 	"github.com/go-martini/martini"
-	"github.com/labstack/lytup/server/db"
+	L "github.com/labstack/lytup/server/lytup"
 	"github.com/labstack/lytup/server/models"
 	"github.com/labstack/lytup/server/utils"
 	"github.com/martini-contrib/render"
+	"gopkg.in/mgo.v2/bson"
 	"io"
-	"labix.org/v2/mgo/bson"
 	"net/http"
 	"os"
 	"path"
@@ -51,7 +51,7 @@ func DeleteFolder(rw http.ResponseWriter, params martini.Params,
 func Download(rw http.ResponseWriter, params martini.Params) {
 	id := params["id"]
 
-	db := db.NewDb("folders")
+	db := L.NewDb("folders")
 	defer db.Session.Close()
 
 	// Check if folder

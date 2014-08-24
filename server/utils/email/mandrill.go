@@ -4,13 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	L "github.com/labstack/lytup/server/lytup"
 	"net/http"
 )
 
-const (
-	URI string = "https://mandrillapp.com/api/1.0/messages/send.json"
-	KEY string = "xFlwQYiL5FaIqxWRT59KyQ"
-)
+const uri string = "https://mandrillapp.com/api/1.0/messages/send.json"
 
 type to struct {
 	Name  string `json:"name"`
@@ -31,9 +29,9 @@ type Mandrill struct {
 	Message message `json:"message"`
 }
 
-func NewMandrill() *Mandrill {
+func NewMandrill(cfg L.EmailConfig) *Mandrill {
 	return &Mandrill{
-		Key: KEY,
+		Key: cfg.Key,
 	}
 }
 
@@ -54,7 +52,7 @@ func (md *Mandrill) Send(msg Message) error {
 		return err
 	}
 
-	res, err := http.Post(URI, "applicaiton/json", bytes.NewBuffer(body))
+	res, err := http.Post(uri, "applicaiton/json", bytes.NewBuffer(body))
 	if err != nil {
 		return err
 	}

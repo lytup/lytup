@@ -2,9 +2,9 @@ package models
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/lytup/server/db"
+	L "github.com/labstack/lytup/server/lytup"
 	U "github.com/labstack/lytup/server/utils"
-	"labix.org/v2/mgo/bson"
+	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
@@ -17,14 +17,15 @@ type User struct {
 	Token          string        `json:"token,omitempty" bson:"-"`
 	CreatedAt      time.Time     `json:"createdAt" bson:"createdAt"`
 	UpdatedAt      time.Time     `json:"updatedAt" bson:"updatedAt"`
-	EmailVerified  bool          `json:"emailVerified" bson:"emailVerified"`
+	Active         bool          `json:"active" bson:"active"`
 }
 
 func (usr *User) Create() error {
 	usr.Id = bson.NewObjectId()
+	usr.HashedPassword = U.HashPassword([]byte(usr.Password))
 	usr.CreatedAt = time.Now()
 
-	db := db.NewDb("users")
+	db := L.NewDb("users")
 	defer db.Session.Close()
 	err := db.Collection.Insert(usr)
 	if err != nil {
@@ -40,7 +41,7 @@ func (usr *User) Create() error {
 }
 
 func (usr *User) Find() error {
-	db := db.NewDb("users")
+	db := L.NewDb("users")
 	defer db.Session.Close()
 	err := db.Collection.FindId(usr.Id).One(usr)
 	if err != nil {
@@ -51,7 +52,7 @@ func (usr *User) Find() error {
 }
 
 func (usr *User) Login() error {
-	db := db.NewDb("users")
+	db := L.NewDb("users")
 	defer db.Session.Close()
 	err := db.Collection.Find(bson.M{"email": usr.Email,
 		"password": U.HashPassword([]byte(usr.Password))}).
