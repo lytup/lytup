@@ -1,0 +1,13 @@
+{
+  "key": "",
+  "mongoDb": {
+    "host": "localhost",
+    "port": 27017,
+    "username": "",
+    "password": ""
+  },
+  "email": {
+    "provider": "mandrill",
+    "key": ""
+  }
+}
