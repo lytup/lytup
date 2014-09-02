@@ -7,7 +7,9 @@
     "password": ""
   },
   "email": {
-    "provider": "mandrill",
-    "key": ""
+    "host": "",
+    "post": "",
+    "username": "",
+    "port": ""
   }
 }

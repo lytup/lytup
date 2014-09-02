@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
 	"github.com/go-martini/martini"
 	L "github.com/labstack/lytup/server/lytup"
 	"gopkg.in/mgo.v2/bson"
@@ -18,8 +19,8 @@ var WEB_ROUTES map[string]bool = map[string]bool{
 func main() {
 	m := martini.Classic()
 
-	m.Get("/:id", home)   // Folder check
-	m.Get("/i/:id", home) // File check
+	m.Get("/:id", home)   // Is folder?
+	m.Get("/i/:id", home) // Is file?
 
 	log.Fatal(http.ListenAndServe("localhost:3001", m))
 }

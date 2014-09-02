@@ -1,12 +1,11 @@
 package lytup
 
 import (
-  "testing"
+	"testing"
 )
 
 func TestLoadConfig(t *testing.T) {
-  err := loadConfig()
-  if err != nil {
-    t.Error(err)
-  }
+	if err := loadConfig(); err != nil {
+		t.Error(err)
+	}
 }

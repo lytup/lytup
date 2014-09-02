@@ -1,6 +1,9 @@
 package main
 
 import (
+	"io"
+	"net/http"
+
 	"code.google.com/p/go.net/websocket"
 	"github.com/go-martini/martini"
 	"github.com/golang/glog"
@@ -9,8 +12,6 @@ import (
 	"github.com/martini-contrib/binding"
 	"github.com/martini-contrib/cors"
 	"github.com/martini-contrib/render"
-	"io"
-	"net/http"
 )
 
 // TODO: Move it to config file
@@ -57,7 +58,7 @@ func main() {
 		//*******
 		// Users
 		//*******
-		r.Get("/users", routes.FindUser)
+		r.Get("/users/:id", routes.FindUserById)
 
 		//*********
 		// Folders
@@ -86,6 +87,8 @@ func main() {
 	m.Post("/u", routes.ValidateToken, routes.Upload)
 	m.Get("/d/:id", routes.Download)
 	m.Get("/d/:id/t", routes.DownloadThumbnail)
+
+	m.Get("/c/:code", routes.ConfirmUser)
 
 	glog.Fatal(http.ListenAndServe("localhost:3000", m))
 }

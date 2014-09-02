@@ -2,17 +2,18 @@ package routes
 
 import (
 	"archive/zip"
+	"io"
+	"net/http"
+	"os"
+	"path"
+	"strconv"
+
 	"github.com/go-martini/martini"
 	L "github.com/labstack/lytup/server/lytup"
 	"github.com/labstack/lytup/server/models"
 	"github.com/labstack/lytup/server/utils"
 	"github.com/martini-contrib/render"
 	"gopkg.in/mgo.v2/bson"
-	"io"
-	"net/http"
-	"os"
-	"path"
-	"strconv"
 )
 
 func CreateFolder(fol models.Folder, ren render.Render, usr *models.User) {
@@ -27,12 +28,11 @@ func FindFolders(ren render.Render, usr *models.User) {
 }
 
 func FindFolderById(rw http.ResponseWriter, params martini.Params, ren render.Render) {
-	fol, err := models.FindFolderById(params["id"])
-	if err != nil {
+	if fol, err := models.FindFolderById(params["id"]); err != nil {
 		rw.WriteHeader(http.StatusNotFound)
-		return
+	} else {
+		ren.JSON(http.StatusOK, fol)
 	}
-	ren.JSON(http.StatusOK, fol)
 }
 
 func UpdateFolder(ren render.Render, params martini.Params, fol models.Folder,
@@ -54,22 +54,18 @@ func Download(rw http.ResponseWriter, params martini.Params) {
 	db := L.NewDb("folders")
 	defer db.Session.Close()
 
-	// Check if folder
-	n, err := db.Collection.Find(bson.M{"id": id}).Count()
-	if err != nil {
+	// Is folder?
+	if n, err := db.Collection.Find(bson.M{"id": id}).Count(); err != nil {
 		panic(err)
-	}
-	if n != 0 {
+	} else if n != 0 {
 		downloadFolder(id, rw)
 		return
 	}
 
-	// Check if file
-	n, err = db.Collection.Find(bson.M{"files.id": id}).Count()
-	if err != nil {
+	// Is file?
+	if n, err := db.Collection.Find(bson.M{"files.id": id}).Count(); err != nil {
 		panic(err)
-	}
-	if n != 0 {
+	} else if n != 0 {
 		downloadFile(id, rw, false)
 		return
 	}

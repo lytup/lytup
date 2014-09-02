@@ -7,3 +7,5 @@
 # MongoDB
 ### Indexes
 * db.users.ensureIndex({email: 1}, {unique: true})
+* db.users.ensureIndex({confirmationCode: 1})
+* More on file folders

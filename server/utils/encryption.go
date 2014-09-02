@@ -1,16 +1,11 @@
 package utils
 
 import (
-	"code.google.com/p/go.crypto/pbkdf2"
 	"crypto/sha256"
-	"os"
+
+	"code.google.com/p/go.crypto/pbkdf2"
 )
 
-var (
-	SALT = []byte(os.Getenv("SALT"))
-	KEY  = []byte(os.Getenv("KEY"))
-)
-
-func HashPassword(pwd []byte) []byte {
-	return pbkdf2.Key(pwd, SALT, 4096, sha256.Size, sha256.New)
+func HashPassword(pwd, salt string) []byte {
+	return pbkdf2.Key([]byte(pwd), []byte(salt), 64000, sha256.Size, sha256.New)
 }

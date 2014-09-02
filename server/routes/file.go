@@ -2,14 +2,15 @@ package routes
 
 import (
 	"bytes"
-	"github.com/go-martini/martini"
-	"github.com/labstack/lytup/server/models"
-	"github.com/labstack/lytup/server/utils"
-	"github.com/martini-contrib/render"
 	"io"
 	"net/http"
 	"os"
 	"path"
+
+	"github.com/go-martini/martini"
+	"github.com/labstack/lytup/server/models"
+	"github.com/labstack/lytup/server/utils"
+	"github.com/martini-contrib/render"
 )
 
 // TODO: Move it to config file
@@ -91,10 +92,10 @@ func Upload(req *http.Request, rw http.ResponseWriter, params martini.Params,
 			// Create file
 			filePath := path.Join(folPath, fileName)
 			f, err := os.Create(filePath)
+			defer f.Close()
 			if err != nil {
 				panic(err)
 			}
-			defer f.Close()
 
 			io.Copy(f, part)
 

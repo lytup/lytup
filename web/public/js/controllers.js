@@ -55,6 +55,15 @@ angular.module('lytup.controllers', [])
         });
       };
 
+      $scope.signin = function(user) {
+        return Restangular.all('users').all('login').post(user)
+          .then(function(usr) {
+            $window.localStorage.setItem('token', usr.token);
+            $scope.user = usr;
+            $scope.folders = Restangular.all('folders').getList().$object;
+          });
+      };
+
       $scope.signout = function() {
         $window.localStorage.removeItem('token');
         $scope.user = {};
@@ -216,8 +225,7 @@ angular.module('lytup.controllers', [])
 
       $scope.signup = function() {
         Restangular.all('users').post($scope.user).then(function(usr) {
-          $window.localStorage.setItem('token', usr.token);
-          $scope.$parent.user = usr;
+          $scope.signin($scope.user);
           $modalInstance.close();
         }, function(res) {
           if (res.data.error === 'duplicate') {
@@ -239,18 +247,14 @@ angular.module('lytup.controllers', [])
       $scope.errors = {};
 
       $scope.signin = function() {
-        Restangular.all('users').all('login').post($scope.user)
-          .then(function(usr) {
-            $window.localStorage.setItem('token', usr.token);
-            $scope.$parent.user = usr;
-            $scope.$parent.folders = Restangular.all('folders').getList().$object;
-            $modalInstance.close();
-          }, function(res) {
-            if (res.status === 404) {
-              $scope.errors.loginFailed = true;
-            }
-          });
-      };
+        $scope.$parent.signin($scope.user).then(function() {
+          $modalInstance.close();
+        }, function(res) {
+          if (res.status === 404) {
+            $scope.errors.loginFailed = true;
+          }
+        })
+      }
     }
   ]).controller('FolderModalCtrl', [
     '$scope',

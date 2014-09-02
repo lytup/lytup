@@ -1,17 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <title>Welcome to Lytup</title>
-</head>
-
-<body style="font: 13px 'Lucida Grande', Arial, sans-serif;">
+{{define "content"}}
   Hi {{.name}},
 
   <p>
     You recently signed up for Lytup. To confirm your email address, follow this link:
-    <br>http://lytup.com/confirm/{{.id}}
+    <br>http://{{.hostname}}/c/{{.code}}
   </p>
 
   <p>
@@ -24,6 +16,4 @@
     This message was intended for {{.email}}. If this was in error, please <a href="">contact us</a> or <a href="">opt out</a>.
     <!-- LabStack's offices are located at 1098 Harrison St, San Francisco, CA 94103 -->
   </p>
-</body>
-
-</html>
+{{end}}

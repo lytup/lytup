@@ -1,6 +1,9 @@
 {
 	"ImportPath": "github.com/labstack/lytup/server",
 	"GoVersion": "go1.3.1",
+	"Packages": [
+		"./..."
+	],
 	"Deps": [
 		{
 			"ImportPath": "code.google.com/p/go.crypto/pbkdf2",
@@ -34,6 +37,10 @@
 		{
 			"ImportPath": "github.com/golang/glog",
 			"Rev": "d1c4472bf2efd3826f2b5bdcc02d8416798d678c"
+		},
+		{
+			"ImportPath": "github.com/jordan-wright/email",
+			"Rev": "e9c33a30b41904aff0f6a934ec9488a4395b3a8b"
 		},
 		{
 			"ImportPath": "github.com/martini-contrib/binding",

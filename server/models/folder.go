@@ -1,12 +1,13 @@
 package models
 
 import (
-	L "github.com/labstack/lytup/server/lytup"
-	U "github.com/labstack/lytup/server/utils"
-	"gopkg.in/mgo.v2/bson"
 	"os"
 	"path"
 	"time"
+
+	L "github.com/labstack/lytup/server/lytup"
+	U "github.com/labstack/lytup/server/utils"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type Folder struct {
@@ -21,15 +22,15 @@ type Folder struct {
 }
 
 func (fol *Folder) Create() {
-	fol.Id = U.RandString(7)
+	fol.Id = U.RandomString(7)
 	fol.Files = []*File{}
 	fol.CreatedAt = time.Now()
+	fol.UpdatedAt = fol.CreatedAt
 	fol.ExpiresAt = fol.CreatedAt.Add(time.Duration(fol.Expiry) * time.Hour)
 
 	db := L.NewDb("folders")
 	defer db.Session.Close()
-	err := db.Collection.Insert(&fol)
-	if err != nil {
+	if err := db.Collection.Insert(&fol); err != nil {
 		panic(err)
 	}
 }
@@ -38,8 +39,7 @@ func FindFolders(usr *User) *[]Folder {
 	db := L.NewDb("folders")
 	defer db.Session.Close()
 	folders := []Folder{}
-	err := db.Collection.Find(bson.M{"userId": usr.Id}).All(&folders)
-	if err != nil {
+	if err := db.Collection.Find(bson.M{"userId": usr.Id}).All(&folders); err != nil {
 		panic(err)
 	}
 	return &folders
@@ -49,8 +49,7 @@ func FindFolderById(id string) (*Folder, error) {
 	db := L.NewDb("folders")
 	defer db.Session.Close()
 	fol := Folder{}
-	err := db.Collection.Find(bson.M{"id": id}).One(&fol)
-	if err != nil {
+	if err := db.Collection.Find(bson.M{"id": id}).One(&fol); err != nil {
 		return nil, err
 	}
 	return &fol, nil
@@ -72,9 +71,7 @@ func (fol *Folder) Update(usr *User) {
 
 	db := L.NewDb("folders")
 	defer db.Session.Close()
-	err := db.Collection.Update(bson.M{"id": fol.Id, "userId": usr.Id},
-		bson.M{"$set": m})
-	if err != nil {
+	if err := db.Collection.Update(bson.M{"id": fol.Id, "userId": usr.Id}, bson.M{"$set": m}); err != nil {
 		panic(err)
 	}
 }
@@ -82,14 +79,12 @@ func (fol *Folder) Update(usr *User) {
 func DeleteFolder(id string, usr *User) {
 	db := L.NewDb("folders")
 	defer db.Session.Close()
-	err := db.Collection.Remove(bson.M{"id": id, "userId": usr.Id})
-	if err != nil {
+	if err := db.Collection.Remove(bson.M{"id": id, "userId": usr.Id}); err != nil {
 		panic(err)
 	}
 
 	// Delete folder from file system
-	err = os.RemoveAll(path.Join("/tmp", id)) // TODO: Read from config
-	if err != nil {
+	if err := os.RemoveAll(path.Join("/tmp", id)); err != nil { // TODO: Read from config
 		panic(err)
 	}
 }

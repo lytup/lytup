@@ -23,7 +23,6 @@ func videoThumbnail(file string) (string, error) {
 	cmd := exec.Command("convert", file, "-resize", SIZE+"^", "-strip",
 		"-gravity", "Center", "-extent", SIZE, "jpg:-")
 	out, err := cmd.Output()
-
 	if err != nil {
 		return "", err
 	}
@@ -36,7 +35,6 @@ func CreateThumbnail(file, typ string) (string, error) {
 	} else if IsVideo(typ) {
 		file = file + "[10]" // 10th frame
 		return videoThumbnail(file)
-	} else {
-		return "", nil
 	}
+	return "", nil
 }

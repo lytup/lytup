@@ -2,6 +2,7 @@ package lytup
 
 import (
 	"fmt"
+
 	"github.com/golang/glog"
 	"gopkg.in/mgo.v2"
 )
@@ -14,7 +15,7 @@ type Db struct {
 }
 
 func init() {
-	m := Cfg.MongoDb
+	m := Config.MongoDb
 	uri := "mongodb://"
 
 	if m.Username != "" && m.Password != "" {
@@ -26,8 +27,7 @@ func init() {
 	}
 
 	var err error
-	session, err = mgo.Dial(uri)
-	if err != nil {
+	if session, err = mgo.Dial(uri); err != nil {
 		glog.Fatal(err)
 	}
 }
