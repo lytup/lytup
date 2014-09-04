@@ -1,6 +1,6 @@
 # Lytup
 
-### Simple file sharing
+### Simple File Sharing
 
 ## Demo
 
