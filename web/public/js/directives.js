@@ -1,6 +1,20 @@
 'use strict';
 
 angular.module('lytup.directives', [])
+// HTML5 autofocus works only once during the page load,
+// so re-opening a modal doesn't loose the focus
+// https://github.com/angular-ui/bootstrap/issues/1696
+.directive('lyFocus', ['$timeout',
+  function($timeout) {
+    return {
+      link: function(scope, elm) {
+        $timeout(function() {
+          elm.focus();
+        }, 500);
+      }
+    };
+  }
+])
   .directive('lyCopy', [
 
     function() {
@@ -56,6 +70,7 @@ angular.module('lytup.directives', [])
     }
   ])
   .directive('lyFromNow', [
+
     function() {
       return {
         link: function(scope, elm, attrs) {
@@ -69,6 +84,7 @@ angular.module('lytup.directives', [])
     }
   ])
   .directive('lyDeadCenter', [
+
     function() {
       return {
         link: function(scope, elm) {

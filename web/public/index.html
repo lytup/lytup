@@ -8,6 +8,8 @@
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <base href="/">
+
   <!-- Place favicon.ico and apple-touch-icon(s) in the root directory -->
 
   <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css">
@@ -48,7 +50,7 @@
         </ul> -->
         <ul class="nav navbar-nav navbar-right">
           <li ng-if="user.token">
-            <a href="" ng-click="signout()">SIGN OUT</a>
+            <a href ng-click="signout()">SIGN OUT</a>
           </li>
         </ul>
       </div>

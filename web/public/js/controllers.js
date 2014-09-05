@@ -28,33 +28,6 @@ angular.module('lytup.controllers', [])
         });
       }
 
-      $scope.signupModal = function() {
-        $modal.open({
-          scope: $scope,
-          controller: 'SignupModalCtrl',
-          templateUrl: '/tpl/modals/signup.html',
-          size: 'sm'
-        });
-      };
-
-      $scope.signinModal = function() {
-        $modal.open({
-          scope: $scope,
-          controller: 'SigninModalCtrl',
-          templateUrl: '/tpl/modals/signin.html',
-          size: 'sm'
-        });
-      };
-
-      $scope.folderModal = function() {
-        $modal.open({
-          scope: $scope,
-          controller: 'FolderModalCtrl',
-          templateUrl: '/tpl/modals/folder.html',
-          size: 'sm'
-        });
-      };
-
       $scope.signin = function(user) {
         return Restangular.all('users').all('login').post(user)
           .then(function(usr) {
@@ -70,6 +43,15 @@ angular.module('lytup.controllers', [])
         $location.path('/');
       };
 
+      $scope.folderModal = function() {
+        $modal.open({
+          scope: $scope,
+          controller: 'FolderModalCtrl',
+          templateUrl: '/tpl/modals/folder.html',
+          size: 'sm'
+        });
+      };
+
       $scope.deleteFolder = function(fol) {
         fol.remove().then(function() {
           _.remove($scope.folders, {
@@ -81,36 +63,43 @@ angular.module('lytup.controllers', [])
       /************
       / Validations
       /************/
-      $scope.validateName = function(form, errors) {
-        errors.blankName = !form.name.$viewValue;
+      function validateFirstName(form, errors) {
+        errors.blankFirstName = !form.firstName.$viewValue;
       };
 
-      $scope.validateEmail = function(form, errors) {
+      function validateLastName(form, errors) {
+        errors.blankLastName = !form.lastName.$viewValue;
+      };
+
+      function validateEmail(form, errors) {
         errors.blankEmail = !form.email.$viewValue;
         errors.invalidEmail = form.email.$viewValue && form.email.$invalid;
       };
 
-      $scope.validatePassword = function(form, errors) {
+      function validatePassword(form, errors) {
         errors.blankPassword = !form.password.$viewValue;
         errors.invalidPassword = form.password.$viewValue && form.password.$invalid;
       };
 
-      $scope.validateExpiry = function(form, errors) {
+      function validateExpiry(form, errors) {
         errors.blankExpiry = !form.expiry.$viewValue;
       };
 
       $scope.validate = function(form, errors) {
-        if (form.name) {
-          $scope.validateName(form, errors);
+        if (form.firstName) {
+          validateFirstName(form, errors);
+        }
+        if (form.lastName) {
+          validateLastName(form, errors);
         }
         if (form.email) {
-          $scope.validateEmail(form, errors);
+          validateEmail(form, errors);
         }
         if (form.password) {
-          $scope.validatePassword(form, errors);
+          validatePassword(form, errors);
         }
         if (form.expiry) {
-          $scope.validateExpiry(form, errors);
+          validateExpiry(form, errors);
         }
         // Continue if form is pristine with expiry field
         if (form.$pristine && !form.expiry || form.$invalid) {
@@ -212,21 +201,32 @@ angular.module('lytup.controllers', [])
       $scope.file = Restangular.one('files', $routeParams.id).get().$object;
     }
   ])
-  .controller('SignupModalCtrl', [
+  .controller('SignupCtrl', [
     '$scope',
     '$window',
+    '$location',
     '$log',
-    '$modalInstance',
+    '$modal',
     'Restangular',
-    function($scope, $window, $log, $modalInstance, Restangular) {
-      $log.info('Signup modal controller');
+    function($scope, $window, $location, $log, $modal, Restangular) {
+      $log.info('Signup controller');
       $scope.user = {};
       $scope.errors = {};
 
-      $scope.signup = function() {
+      var modal = $modal.open({
+        scope: $scope,
+        templateUrl: '/tpl/modals/signup.html',
+        size: 'sm'
+      });
+
+      modal.result.finally(function() {
+        $location.path('/');
+      });
+
+      $scope.submit = function() {
         Restangular.all('users').post($scope.user).then(function(usr) {
           $scope.signin($scope.user);
-          $modalInstance.close();
+          modal.close();
         }, function(res) {
           if (res.data.error === 'duplicate') {
             $scope.errors.registeredEmail = true;
@@ -235,20 +235,38 @@ angular.module('lytup.controllers', [])
       };
     }
   ])
-  .controller('SigninModalCtrl', [
+  .controller('SigninCtrl', [
     '$scope',
     '$window',
+    '$location',
     '$log',
-    '$modalInstance',
+    '$modal',
     'Restangular',
-    function($scope, $window, $log, $modalInstance, Restangular) {
-      $log.info('Signin modal controller');
+    function($scope, $window, $location, $log, $modal, Restangular) {
+      $log.info('Signin controller');
       $scope.user = {};
       $scope.errors = {};
 
-      $scope.signin = function() {
-        $scope.$parent.signin($scope.user).then(function() {
-          $modalInstance.close();
+      var modal = $modal.open({
+        scope: $scope,
+        templateUrl: '/tpl/modals/signin.html',
+        size: 'sm'
+      });
+
+      modal.result.finally(function() {
+        if ($location.path() !== '/forgot') {
+          $location.path('/');
+        }
+      });
+
+      $scope.forgotPassword = function() {
+        modal.close();
+        $location.path('/forgot');
+      }
+
+      $scope.submit = function() {
+        $scope.signin($scope.user).then(function() {
+          modal.close();
         }, function(res) {
           if (res.status === 404) {
             $scope.errors.loginFailed = true;
@@ -301,4 +319,49 @@ angular.module('lytup.controllers', [])
         }
       };
     }
-  ]);
+  ]).controller('ConfirmCtrl', [
+    '$scope',
+    '$window',
+    '$location',
+    '$routeParams',
+    '$log',
+    'Restangular',
+    function($scope, $window, $location, $routeParams, $log, Restangular) {
+      $log.info('Confirm controller');
+      // Send confirmation request
+      Restangular.all('users').one('confirm', $routeParams.key).get().then(function(usr) {
+        $window.localStorage.setItem('token', usr.token);
+        $scope.user = usr;
+        $location.path('/');
+      });
+    }
+  ]).controller('ForgotPwdCtrl', [
+    '$scope',
+    '$location',
+    '$routeParams',
+    '$log',
+    '$modal',
+    'Restangular',
+    function($scope, $location, $routeParams, $log, $modal, Restangular) {
+      $log.info('Forgot password controller');
+      $scope.errors = {};
+
+      var modal = $modal.open({
+        scope: $scope,
+        templateUrl: '/tpl/modals/forgotpwd.html',
+        size: 'sm'
+      });
+
+      modal.result.finally(function() {
+        $location.path('/');
+      });
+
+      $scope.submit = function() {
+        Restangular.all('users').one('forgot', $routeParams.key).get().then(function(usr) {
+          $window.localStorage.setItem('token', usr.token);
+          $scope.user = usr;
+          $location.path('/');
+        });
+      }
+    }
+  ])

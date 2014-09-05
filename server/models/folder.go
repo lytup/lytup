@@ -21,7 +21,7 @@ type Folder struct {
 	ExpiresAt time.Time     `json:"expiresAt" bson:"expiresAt"`
 }
 
-func (fol *Folder) Create() {
+func (fol *Folder) Create() error {
 	fol.Id = U.RandomString(7)
 	fol.Files = []*File{}
 	fol.CreatedAt = time.Now()
@@ -31,18 +31,19 @@ func (fol *Folder) Create() {
 	db := L.NewDb("folders")
 	defer db.Session.Close()
 	if err := db.Collection.Insert(&fol); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func FindFolders(usr *User) *[]Folder {
+func FindFolders(usr *User) ([]Folder, error) {
 	db := L.NewDb("folders")
 	defer db.Session.Close()
 	folders := []Folder{}
 	if err := db.Collection.Find(bson.M{"userId": usr.Id}).All(&folders); err != nil {
-		panic(err)
+		return nil, err
 	}
-	return &folders
+	return folders, nil
 }
 
 func FindFolderById(id string) (*Folder, error) {
@@ -55,7 +56,7 @@ func FindFolderById(id string) (*Folder, error) {
 	return &fol, nil
 }
 
-func (fol *Folder) Update(usr *User) {
+func (fol *Folder) Update(usr *User) error {
 	now := time.Now()
 	m := bson.M{"updatedAt": now}
 
@@ -71,20 +72,25 @@ func (fol *Folder) Update(usr *User) {
 
 	db := L.NewDb("folders")
 	defer db.Session.Close()
-	if err := db.Collection.Update(bson.M{"id": fol.Id, "userId": usr.Id}, bson.M{"$set": m}); err != nil {
-		panic(err)
+	if err := db.Collection.Update(
+		bson.M{"id": fol.Id, "userId": usr.Id},
+		bson.M{"$set": m}); err != nil {
+		return err
 	}
+	return nil
 }
 
-func DeleteFolder(id string, usr *User) {
+func DeleteFolder(id string, usr *User) error {
 	db := L.NewDb("folders")
 	defer db.Session.Close()
 	if err := db.Collection.Remove(bson.M{"id": id, "userId": usr.Id}); err != nil {
-		panic(err)
+		return err
 	}
 
 	// Delete folder from file system
 	if err := os.RemoveAll(path.Join("/tmp", id)); err != nil { // TODO: Read from config
-		panic(err)
+		return err
 	}
+
+	return nil
 }

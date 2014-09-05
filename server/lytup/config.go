@@ -2,7 +2,6 @@ package lytup
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 
@@ -19,6 +18,12 @@ type MongoDbConfig struct {
 	Password string `json:"password"`
 }
 
+type RedisConfig struct {
+	Host     string `json:"host"`
+	Port     uint   `json:"port"`
+	Password string `json:"password"`
+}
+
 type EmailConfig struct {
 	Host      string `json:"host"`
 	Port      uint   `json:"port"`
@@ -29,28 +34,27 @@ type EmailConfig struct {
 }
 
 type config struct {
-	Hostname string        `json:"hostname"`
-	Key      string        `json:"key"`
-	MongoDb  MongoDbConfig `json:"mongoDb"`
-	Email    EmailConfig   `json:"email"`
+	Hostname           string        `json:"hostname"`
+	Key                string        `json:"key"`
+	ConfirmationExpiry uint          `json:"confirmationExpiry"`
+	PassResetExpiry    uint          `json:"PassResetExpiry"`
+	UploadDir          string        `json:"uploadDir"`
+	MongoDb            MongoDbConfig `json:"mongoDb"`
+	Redis              RedisConfig   `json:"redis"`
+	Email              EmailConfig   `json:"email"`
 }
 
 var Config config
 
 func init() {
-	if err := loadConfig(); err != nil {
-		glog.Fatal(err)
-	}
-}
-
-func loadConfig() error {
+	// Load config
 	for _, d := range dirs {
 		b, err := ioutil.ReadFile(d + "/lytup.json")
 		if err != nil {
 			continue
 		}
 		json.Unmarshal(b, &Config)
-		return nil
+		return
 	}
-	return errors.New(fmt.Sprintf("Config file not found in %v", dirs))
+	glog.Fatal(fmt.Sprintf("Config file not found in %v", dirs))
 }

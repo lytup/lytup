@@ -31,6 +31,31 @@ angular.module('lytup', [
         templateUrl: '/tpl/home.html'
       });
 
+      $routeProvider.when('/join', {
+        controller: 'SignupCtrl',
+        templateUrl: '/tpl/home.html'
+      });
+
+      $routeProvider.when('/login', {
+        controller: 'SigninCtrl',
+        templateUrl: '/tpl/home.html'
+      });
+
+      $routeProvider.when('/forgot/:key', {
+        controller: 'ForgotPwdCtrl',
+        templateUrl: '/tpl/home.html'
+      });
+
+      // $routeProvider.when('/reset', {
+      //   controller: 'PasswordCtrl',
+      //   templateUrl: '/tpl/reset.html'
+      // });
+
+      $routeProvider.when('/confirm/:key', {
+        controller: 'ConfirmCtrl',
+        template: ''
+      });
+
       $routeProvider.when('/:id', {
         controller: 'FolderCtrl',
         templateUrl: '/tpl/folder.html'
@@ -53,14 +78,15 @@ angular.module('lytup', [
 
       $rootScope.MESSAGE = function(code) {
         return {
-          blankName: 'A name is required',
-          blankEmail: 'An email is required',
-          invalidEmail: 'Doesn\'t look like a valid email',
+          blankFirstName: 'First name is required',
+          blankLastName: 'Last name is required',
+          blankEmail: 'Email is required',
+          invalidEmail: 'Email is invalid',
           registeredEmail: 'This email is already registered',
           blankPassword: 'Password cannot be blank',
           invalidPassword: 'Password must be at least 6 characters',
-          blankExpiry: 'An expiry is required',
-          loginFailed: 'Invalid email or password'
+          blankExpiry: 'Expiry is required',
+          loginFailed: 'Login faild, invalid email or password'
         }[code];
       }
     }

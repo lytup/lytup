@@ -15,15 +15,15 @@ type Db struct {
 }
 
 func init() {
-	m := Config.MongoDb
+	cfg := Config.MongoDb
 	uri := "mongodb://"
 
-	if m.Username != "" && m.Password != "" {
-		uri = fmt.Sprintf("%s%s:%s@", uri, m.Username, m.Password)
+	if cfg.Username != "" && cfg.Password != "" {
+		uri = fmt.Sprintf("%s%s:%s@", uri, cfg.Username, cfg.Password)
 	}
-	uri += m.Host
-	if m.Port != 0 {
-		uri = fmt.Sprintf("%s:%d", uri, m.Port)
+	uri += cfg.Host
+	if cfg.Port != 0 {
+		uri = fmt.Sprintf("%s:%d", uri, cfg.Port)
 	}
 
 	var err error

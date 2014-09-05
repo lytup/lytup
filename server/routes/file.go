@@ -8,41 +8,68 @@ import (
 	"path"
 
 	"github.com/go-martini/martini"
+	"github.com/golang/glog"
+	L "github.com/labstack/lytup/server/lytup"
 	"github.com/labstack/lytup/server/models"
 	"github.com/labstack/lytup/server/utils"
 	"github.com/martini-contrib/render"
+	"gopkg.in/mgo.v2"
 )
 
-// TODO: Move it to config file
-const (
-	UPLOAD_DIR = "/tmp"
-)
-
-func CreateFile(params martini.Params, ren render.Render, file models.File,
+func CreateFile(rw http.ResponseWriter, params martini.Params, ren render.Render, file models.File,
 	usr *models.User) {
-	file.Create(params["folId"], usr)
-	ren.JSON(http.StatusCreated, file)
+	if err := file.Create(params["folId"], usr); err != nil {
+		glog.Error(err)
+		rw.WriteHeader(http.StatusInternalServerError)
+	} else {
+		ren.JSON(http.StatusCreated, file)
+	}
 }
 
-func FindFileById(params martini.Params, ren render.Render) {
+func FindFileById(rw http.ResponseWriter, params martini.Params, ren render.Render) {
 	id, ok := params["id"]
 	if !ok {
 		id = params["fileId"]
 	}
-	_, file := models.FindFileById(id)
-	ren.JSON(http.StatusOK, file)
+
+	if file, _, err := models.FindFileById(id); err != nil {
+		glog.Error(err)
+		if err == mgo.ErrNotFound {
+			rw.WriteHeader(http.StatusNotFound)
+		} else {
+			rw.WriteHeader(http.StatusInternalServerError)
+		}
+	} else {
+		ren.JSON(http.StatusOK, file)
+	}
 }
 
 func UpdateFile(rw http.ResponseWriter, params martini.Params, file models.File,
 	usr *models.User) {
 	file.Id = params["fileId"]
-	file.Update(params["folId"], usr)
-	rw.WriteHeader(http.StatusOK)
+	if err := file.Update(params["folId"], usr); err != nil {
+		glog.Error(err)
+		if err == mgo.ErrNotFound {
+			rw.WriteHeader(http.StatusNotFound)
+		} else {
+			rw.WriteHeader(http.StatusInternalServerError)
+		}
+	} else {
+		rw.WriteHeader(http.StatusOK)
+	}
 }
 
 func DeleteFile(rw http.ResponseWriter, params martini.Params, usr *models.User) {
-	models.DeleteFile(params["folId"], params["fileId"], usr)
-	rw.WriteHeader(http.StatusOK)
+	if err := models.DeleteFile(params["folId"], params["fileId"], usr); err != nil {
+		glog.Error(err)
+		if err == mgo.ErrNotFound {
+			rw.WriteHeader(http.StatusNotFound)
+		} else {
+			rw.WriteHeader(http.StatusInternalServerError)
+		}
+	} else {
+		rw.WriteHeader(http.StatusOK)
+	}
 }
 
 func Upload(req *http.Request, rw http.ResponseWriter, params martini.Params,
@@ -83,7 +110,7 @@ func Upload(req *http.Request, rw http.ResponseWriter, params martini.Params,
 			}
 		} else if fileName := part.FileName(); fileName != "" {
 			// Create folder
-			folPath := path.Join(UPLOAD_DIR, folId)
+			folPath := path.Join(L.Config.UploadDir, folId)
 			err = os.MkdirAll(folPath, 0755)
 			if err != nil {
 				panic(err)
@@ -102,9 +129,16 @@ func Upload(req *http.Request, rw http.ResponseWriter, params martini.Params,
 			// Create thumbnail
 			file.Thumbnail, err = utils.CreateThumbnail(filePath, part.Header.Get("Content-Type"))
 
-			file.Update(folId, usr)
+			if err := file.Update(folId, usr); err != nil {
+				glog.Error(err)
+				if err == mgo.ErrNotFound {
+					rw.WriteHeader(http.StatusNotFound)
+				} else {
+					rw.WriteHeader(http.StatusInternalServerError)
+				}
+				return
+			}
 		}
 	}
-
 	ren.JSON(http.StatusOK, file)
 }

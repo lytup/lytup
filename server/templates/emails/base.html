@@ -8,6 +8,13 @@
 
 <body style="font: 13px 'Lucida Grande', Arial, sans-serif;">
   {{template "content" .}}
+  <p style="margin-top: 25px; padding-top: 3px; border-top: 1px solid #ccc;
+      font-size: 11px; color: #999;">
+    This message was intended for {{.email}}. If this was in error, please
+    <a href="http://help.lytup.com/">contact us</a>
+    or <a href="http://{{.hostname}}/settings/notifications">opt out</a>.
+    <!-- LabStack's offices are located at 1098 Harrison St, San Francisco, CA 94103 -->
+  </p>
 </body>
 
 </html>

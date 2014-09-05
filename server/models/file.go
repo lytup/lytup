@@ -22,7 +22,7 @@ type File struct {
 	CreatedAt time.Time `json:"createdAt,omitempty" bson:"createdAt"`
 }
 
-func (file *File) Create(folId string, usr *User) {
+func (file *File) Create(folId string, usr *User) error {
 	file.Id = uniuri.NewLen(7)
 	file.CreatedAt = time.Now()
 
@@ -31,24 +31,24 @@ func (file *File) Create(folId string, usr *User) {
 	if err := db.Collection.Update(bson.M{"id": folId, "userId": usr.Id},
 		bson.M{"$set": bson.M{"updatedAt": time.Now()},
 			"$push": bson.M{"files": file}}); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func FindFileById(id string) (string, *File) {
+func FindFileById(id string) (*File, string, error) {
 	db := L.NewDb("folders")
 	defer db.Session.Close()
 	fol := Folder{}
 	if err := db.Collection.Find(bson.M{"files.id": id}).
 		Select(bson.M{"id": 1, "files": bson.M{"$elemMatch": bson.M{"id": id}}}).
 		One(&fol); err != nil {
-		panic(err)
+		return nil, "", err
 	}
-
-	return fol.Id, fol.Files[0]
+	return fol.Files[0], fol.Id, nil
 }
 
-func (file *File) Update(folId string, usr *User) {
+func (file *File) Update(folId string, usr *User) error {
 	now := time.Now()
 	m := bson.M{"updatedAt": now}
 
@@ -68,24 +68,27 @@ func (file *File) Update(folId string, usr *User) {
 	defer db.Session.Close()
 	if err := db.Collection.Update(bson.M{"id": folId, "userId": usr.Id,
 		"files.id": file.Id}, bson.M{"$set": m}); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func DeleteFile(folId, fileId string, usr *User) {
+func DeleteFile(folId, fileId string, usr *User) error {
 	db := L.NewDb("folders")
 	defer db.Session.Close()
 	fol := Folder{}
 	if _, err := db.Collection.Find(bson.M{"id": folId, "userId": usr.Id, "files.id": fileId}).
 		Select(bson.M{"files": bson.M{"$elemMatch": bson.M{"id": fileId}}}).
 		Apply(mgo.Change{Update: bson.M{"$pull": bson.M{"files": bson.M{"id": fileId}}}}, &fol); err != nil {
-		panic(err)
+		return err
 	}
 
 	file := fol.Files[0]
 
 	// Delete file from file system
 	if err := os.Remove(path.Join("/tmp", folId, file.Name)); err != nil { // TODO: Read from config
-		panic(err)
+		return err
 	}
+
+	return nil
 }

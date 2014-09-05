@@ -12,16 +12,15 @@ import (
 	"github.com/labstack/lytup/server/templates"
 )
 
-var cfg = L.Config.Email
-
-func auth() smtp.Auth {
-	return smtp.PlainAuth(
+var (
+	cfg  = L.Config.Email
+	auth = smtp.PlainAuth(
 		"",
 		cfg.Username,
 		cfg.Password,
 		cfg.Host,
 	)
-}
+)
 
 func EmailConfirmation(data map[string]string) error {
 	var b bytes.Buffer
@@ -38,7 +37,7 @@ func EmailConfirmation(data map[string]string) error {
 		Headers: textproto.MIMEHeader{},
 	}
 
-	if err := e.Send(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), auth()); err != nil {
+	if err := e.Send(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), auth); err != nil {
 		glog.Error(err)
 		return err
 	}

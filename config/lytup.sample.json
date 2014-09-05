@@ -1,15 +1,26 @@
 {
+  "hostname": "",
   "key": "",
+  "confirmationExpiry": 172800,
+  "passResetExpiry": 3600,
+  "uploadDir": "/tmp",
   "mongoDb": {
     "host": "localhost",
     "port": 27017,
     "username": "",
     "password": ""
   },
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "password": ""
+  },
   "email": {
-    "host": "",
-    "post": "",
+    "host": "smtp.mandrillapp.com",
+    "port": 587,
     "username": "",
-    "port": ""
+    "password": "",
+    "fromName": "Lytup",
+    "fromEmail": "no-reply@lytup.com"
   }
 }

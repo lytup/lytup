@@ -14,21 +14,21 @@
     "tests"
   ],
   "dependencies": {
-    "angular-route": "1.3.0-beta.10",
-    "bootstrap": "~3.1.1",
-    "ng-file-upload": "~1.4.0",
+    "angular-route": "~1.3.0-rc.0",
+    "bootstrap": "~3.2.0",
+    "ng-file-upload": "~1.6.5",
     "lodash": "~2.4.1",
     "ngSocket": "~0.2.1",
     "zeroclipboard": "~2.1.1",
     "jquery": "~2.1.1",
     "restangular": "~1.4.0",
     "jquery-knob": "~1.2.8",
-    "font-awesome": "~4.1.0",
-    "angular": "1.3.0-beta.10",
-    "moment": "~2.7.0",
-    "angular-bootstrap": "~0.11.0",
-    "angular-loading-bar": "~0.4.3",
-    "angular-animate": "~1.2.19",
-    "colors": "~2.0.0"
+    "font-awesome": "~4.2.0",
+    "angular": "~1.3.0-rc.0",
+    "moment": "~2.8.3",
+    "angular-loading-bar": "~0.5.2",
+    "angular-animate": "~1.3.0-rc.0",
+    "colors": "~2.0.0",
+    "angular-bootstrap": "~0.11.0"
   }
 }

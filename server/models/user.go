@@ -2,51 +2,45 @@ package models
 
 import (
 	"bytes"
-	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	L "github.com/labstack/lytup/server/lytup"
 	U "github.com/labstack/lytup/server/utils"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 type User struct {
-	Id               bson.ObjectId `json:"id" bson:"_id"`
-	Name             string        `json:"name" bson:"name"`
-	Email            string        `json:"email" bson:"email"`
-	Password         string        `json:"password,omitempty" bson:"-"`
-	PasswordHash     []byte        `json:"-" bson:"password"`
-	Token            string        `json:"token,omitempty" bson:"-"`
-	CreatedAt        time.Time     `json:"createdAt" bson:"createdAt"`
-	UpdatedAt        time.Time     `json:"updatedAt" bson:"updatedAt"`
-	ConfirmationCode string        `json:"-" bson:"confirmationCode"`
-	Confirmed        bool          `json:"confirmed" bson:"confirmed"`
-	Salt             string        `json:"-" bson:"salt"`
+	Id           bson.ObjectId `json:"id" bson:"_id"`
+	FirstName    string        `json:"firstName" bson:"firstName"`
+	LastName     string        `json:"lastName" bson:"lastName"`
+	Email        string        `json:"email" bson:"email"`
+	Password     string        `json:"password,omitempty" bson:"-"`
+	PasswordHash []byte        `json:"-" bson:"password"`
+	Token        string        `json:"token,omitempty" bson:"-"`
+	CreatedAt    time.Time     `json:"createdAt" bson:"createdAt"`
+	UpdatedAt    time.Time     `json:"updatedAt" bson:"updatedAt"`
+	Confirmed    bool          `json:"confirmed" bson:"confirmed"`
+	Salt         string        `json:"-" bson:"salt"`
 }
 
-func FindUserById(id string) (*User, *L.Error) {
+func FindUserById(id string) (*User, error) {
 	db := L.NewDb("users")
 	defer db.Session.Close()
 	usr := &User{}
-	if err := db.Collection.FindId(id).One(usr); err != nil {
-		if err.Error() == "not found" {
-			return nil, L.NewError("invalid username or password", L.MongoDbNotFoundError)
-		}
-		return nil, L.NewError(err.Error(), L.MongoDbError)
+	if err := db.Collection.FindId(bson.ObjectIdHex(id)).One(usr); err != nil {
+		return nil, err
 	}
 	return usr, nil
 }
 
-func FindUserByConfirmationCode(code string) (*User, *L.Error) {
+func FindUserByConfirmationCode(code string) (*User, error) {
 	db := L.NewDb("users")
 	defer db.Session.Close()
 	usr := &User{}
 	if err := db.Collection.Find(bson.M{"confirmationCode": code}).One(usr); err != nil {
-		if err.Error() == "not found" {
-			return nil, L.NewError("invalid confirmation code", L.MongoDbNotFoundError)
-		}
-		return nil, L.NewError(err.Error(), L.MongoDbError)
+		return nil, err
 	}
 	return usr, nil
 }
@@ -55,7 +49,6 @@ func (usr *User) Create() error {
 	usr.Id = bson.NewObjectId()
 	usr.Salt = U.RandomString(16)
 	usr.PasswordHash = U.HashPassword(usr.Password, usr.Salt)
-	usr.ConfirmationCode = U.RandomString(32)
 	usr.Confirmed = false
 	usr.CreatedAt = time.Now()
 	usr.UpdatedAt = usr.CreatedAt
@@ -65,23 +58,46 @@ func (usr *User) Create() error {
 	if err := db.Collection.Insert(usr); err != nil {
 		return err
 	}
+
+	// Create user confirmation key with expiry
+	r := L.Redis()
+	defer r.Close()
+	key := U.RandomString(32)
+	r.Send("MULTI")
+	r.Send("SET", key, usr.Id.Hex())
+	r.Send("EXPIRE", key, L.Config.ConfirmationExpiry)
+	if _, err := r.Do("EXEC"); err != nil {
+		return err
+	}
+
+	// Send confirmation email
+	m := map[string]string{
+		"hostname": L.Config.Hostname,
+		"name":     usr.FirstName,
+		"email":    usr.Email,
+		"key":      key,
+	}
+	go U.EmailConfirmation(m)
+
 	return nil
 }
 
-func (usr *User) Login() *L.Error {
+func (usr *User) Find() error {
+	usr, err := FindUserById(usr.Id.Hex())
+	return err
+}
+
+func (usr *User) Login() error {
 	pwd := usr.Password // Grab the password before it's lost
 
 	db := L.NewDb("users")
 	defer db.Session.Close()
 	if err := db.Collection.Find(bson.M{"email": usr.Email}).One(usr); err != nil {
-		if err.Error() == "not found" {
-			return L.NewError(fmt.Sprintf("email <%s> not found", usr.Email), L.LoginError)
-		}
-		return L.NewError(err.Error(), L.MongoDbError)
+		return err
 	}
 
 	if !bytes.Equal(usr.PasswordHash, U.HashPassword(pwd, usr.Salt)) {
-		return L.NewError("invalid password", L.LoginError)
+		return mgo.ErrNotFound
 	}
 
 	token := jwt.New(jwt.GetSigningMethod("HS256"))
@@ -89,7 +105,7 @@ func (usr *User) Login() *L.Error {
 	token.Claims["usr-id"] = usr.Id
 	var err error
 	if usr.Token, err = token.SignedString([]byte(L.Config.Key)); err != nil {
-		return L.NewError(err.Error(), L.JwtError)
+		return err
 	}
 
 	return nil

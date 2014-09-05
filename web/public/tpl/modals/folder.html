@@ -10,7 +10,7 @@
 <form role="form" name="form" novalidate ng-submit="validate(form, errors) && save(folder)">
   <div class="modal-body">
     <div class="form-group" ng-class="{'has-error': errors.blankName}">
-      <input type="text" name="name" class="form-control" placeholder="Name" required ng-model="folder.name" ng-blur="validateName(form, errors)">
+      <input type="text" name="name" class="form-control" placeholder="Name" required ly-focus ng-model="folder.name">
       <p ng-show="errors.blankName" class="help-block">
         {{MESSAGE('blankName')}}
       </p>

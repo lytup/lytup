@@ -5,11 +5,11 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/garyburd/redigo/redis"
 	"github.com/go-martini/martini"
 	"github.com/golang/glog"
 	L "github.com/labstack/lytup/server/lytup"
 	"github.com/labstack/lytup/server/models"
-	U "github.com/labstack/lytup/server/utils"
 	"github.com/martini-contrib/render"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -36,23 +36,23 @@ func CreateUser(rw http.ResponseWriter, ren render.Render, usr models.User) {
 		}
 		ren.JSON(http.StatusInternalServerError, data)
 	} else {
-		// Send confirmation email
-		m := map[string]string{
-			"hostname": L.Config.Hostname,
-			"name":     usr.Name,
-			"email":    usr.Email,
-			"code":     usr.ConfirmationCode,
-		}
-		go U.EmailConfirmation(m)
-
 		ren.JSON(http.StatusCreated, usr.Render())
 	}
 }
 
 func ConfirmUser(rw http.ResponseWriter, ren render.Render, params martini.Params) {
-	if usr, err := models.FindUserByConfirmationCode(params["code"]); err != nil {
+	// Get user id
+	r := L.Redis()
+	defer r.Close()
+	id, err := redis.String(r.Do("GET", params["key"]))
+	if err != nil {
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	if usr, err := models.FindUserById(id); err != nil {
 		glog.Error(err)
-		if err.Code == L.MongoDbNotFoundError {
+		if err == mgo.ErrNotFound {
 			rw.WriteHeader(http.StatusNotFound)
 		} else {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -66,15 +66,21 @@ func ConfirmUser(rw http.ResponseWriter, ren render.Render, params martini.Param
 			if err := usr.Save(); err != nil {
 				glog.Error(err)
 				rw.WriteHeader(http.StatusInternalServerError)
+			} else {
+				ren.JSON(http.StatusOK, usr.Render())
 			}
 		}
 	}
 }
 
-func FindUserById(rw http.ResponseWriter, ren render.Render, params martini.Params) {
-	if usr, err := models.FindUserById(params["id"]); err != nil {
-		glog.Error(err)
-		if err.Code == L.MongoDbNotFoundError {
+func ForgotPassword(rw http.ResponseWriter, usr *models.User) {
+
+}
+
+func FindUser(rw http.ResponseWriter, ren render.Render, usr *models.User) {
+	if err := usr.Find(); err != nil {
+		glog.Warning(err)
+		if err == mgo.ErrNotFound {
 			rw.WriteHeader(http.StatusNotFound)
 		} else {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -86,8 +92,8 @@ func FindUserById(rw http.ResponseWriter, ren render.Render, params martini.Para
 
 func Login(rw http.ResponseWriter, ren render.Render, usr models.User) {
 	if err := usr.Login(); err != nil {
-		glob.Error(err)
-		if err.Code == L.LoginError {
+		glog.Warning(err)
+		if err == mgo.ErrNotFound {
 			rw.WriteHeader(http.StatusNotFound)
 		} else {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -109,6 +115,8 @@ func ValidateToken(req *http.Request, rw http.ResponseWriter, ctx martini.Contex
 			usr := models.User{Id: bson.ObjectIdHex(id)}
 			ctx.Map(&usr)
 			return
+		} else {
+			glog.Warning(err)
 		}
 	}
 	rw.WriteHeader(http.StatusUnauthorized)

@@ -35,7 +35,7 @@ func TestEmailConfirmation(t *testing.T) {
 		"hostname": "localhost:1431",
 		"name":     "Vishal Rana",
 		"email":    "vr@labstack.com",
-		"code":     RandomString(32),
+		"key":      RandomString(32),
 	}
 	if err := EmailConfirmation(m); err != nil {
 		t.Error(err)

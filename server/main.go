@@ -14,11 +14,6 @@ import (
 	"github.com/martini-contrib/render"
 )
 
-// TODO: Move it to config file
-const (
-	UPLOAD_DIR = "/tmp"
-)
-
 type Message struct {
 	Data string `json:"data"`
 }
@@ -49,6 +44,8 @@ func main() {
 		// Users
 		//*******
 		r.Post("/users", binding.Bind(models.User{}), routes.CreateUser)
+		m.Get("/users/confirm/:key", routes.ConfirmUser)
+		m.Post("/users/forgot", binding.Bind(models.User{}), routes.ForgotPassword)
 		r.Post("/users/login", binding.Bind(models.User{}), routes.Login)
 
 		r.Get("/folders/:id", routes.FindFolderById)
@@ -58,7 +55,7 @@ func main() {
 		//*******
 		// Users
 		//*******
-		r.Get("/users/:id", routes.FindUserById)
+		r.Get("/users", routes.FindUser)
 
 		//*********
 		// Folders
@@ -87,8 +84,6 @@ func main() {
 	m.Post("/u", routes.ValidateToken, routes.Upload)
 	m.Get("/d/:id", routes.Download)
 	m.Get("/d/:id/t", routes.DownloadThumbnail)
-
-	m.Get("/c/:code", routes.ConfirmUser)
 
 	glog.Fatal(http.ListenAndServe("localhost:3000", m))
 }

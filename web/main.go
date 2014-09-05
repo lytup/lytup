@@ -4,62 +4,30 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
-	"strings"
 
+	"github.com/GeertJohan/go.rice"
 	"github.com/go-martini/martini"
-	L "github.com/labstack/lytup/server/lytup"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/golang/glog"
 )
 
-var WEB_ROUTES map[string]bool = map[string]bool{
-	"home": true,
-}
+var box *rice.Box
 
 func main() {
 	m := martini.Classic()
+	box = rice.MustFindBox("public")
 
-	m.Get("/:id", home)   // Is folder?
-	m.Get("/i/:id", home) // Is file?
+	// Route everything to index page
+	m.Get("/**", func(rw http.ResponseWriter) {
+		file, err := box.Open("index.html")
+		defer file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	log.Fatal(http.ListenAndServe("localhost:3001", m))
-}
-
-func home(req *http.Request, rw http.ResponseWriter, params martini.Params) {
-	id := params["id"]
-
-	if WEB_ROUTES[id] {
-		sendIndex(rw)
-		return
-	}
-
-	db := L.NewDb("folders")
-	defer db.Session.Close()
-
-	qry := bson.M{"id": id}
-	if strings.HasPrefix(req.URL.Path, "/i/") {
-		qry = bson.M{"files.id": id}
-	}
-	n, err := db.Collection.Find(qry).Count()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if n != 0 {
-		sendIndex(rw)
-		return
-	}
-	rw.WriteHeader(http.StatusNotFound)
-}
-
-func sendIndex(rw http.ResponseWriter) {
-	file, err := os.Open("public/index.html")
-	defer file.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Go HTTP server puts Content-Type automatically
-	// rw.Header().Add("Content-Type", "text/html; charset=utf-8")
-	rw.WriteHeader(http.StatusOK)
-	io.Copy(rw, file)
+		// Go HTTP server puts Content-Type automatically
+		// rw.Header().Add("Content-Type", "text/html; charset=utf-8")
+		rw.WriteHeader(http.StatusOK)
+		io.Copy(rw, file)
+	})
+	glog.Fatal(http.ListenAndServe("localhost:3001", m))
 }
