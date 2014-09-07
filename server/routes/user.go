@@ -132,6 +132,7 @@ func ResetPassword(rw http.ResponseWriter, ren render.Render, params martini.Par
 			rw.WriteHeader(http.StatusInternalServerError)
 		}
 	} else {
+		usr.Update()
 		usr.Login(false)
 		ren.JSON(http.StatusOK, usr.Render())
 	}
@@ -162,6 +163,19 @@ func Login(rw http.ResponseWriter, ren render.Render, usr models.User) {
 		ren.JSON(http.StatusOK, usr.Render())
 	}
 }
+
+// func UpdateUser(rw http.ResponseWriter, usr models.User) {
+// 	if err := usr.Update(); err != nil {
+// 		glog.Error(err)
+// 		if err == mgo.ErrNotFound {
+// 			rw.WriteHeader(http.StatusNotFound)
+// 		} else {
+// 			rw.WriteHeader(http.StatusInternalServerError)
+// 		}
+// 	} else {
+// 		rw.WriteHeader(http.StatusOK)
+// 	}
+// }
 
 func ValidateToken(req *http.Request, rw http.ResponseWriter, ctx martini.Context) {
 	parts := strings.Fields(req.Header.Get("Authorization"))

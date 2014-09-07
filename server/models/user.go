@@ -114,6 +114,34 @@ func (usr *User) Login(verify bool) error {
 	return nil
 }
 
+func (usr *User) Update() error {
+	now := time.Now()
+	m := bson.M{"updatedAt": now}
+
+	if usr.FirstName != "" {
+		m["firstName"] = usr.FirstName
+	}
+	if usr.LastName != "" {
+		m["lastName"] = usr.LastName
+	}
+	if usr.Email != "" {
+		m["email"] = usr.Email
+	}
+	if usr.Password != "" {
+		m["salt"] = U.RandomString(16)
+		m["password"] = U.HashPassword(usr.Password, usr.Salt)
+	}
+
+	db := L.NewDb("users")
+	defer db.Session.Close()
+	if err := db.Collection.Update(
+		bson.M{"id": usr.Id},
+		bson.M{"$set": m}); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (usr *User) Save() error {
 	usr.UpdatedAt = time.Now()
 

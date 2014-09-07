@@ -81,6 +81,10 @@ angular.module('lytup.controllers', [])
         errors.invalidPassword = form.password.$viewValue && form.password.$invalid;
       };
 
+      function matchPasswords(form, errors) {
+        errors.mismatchPasswords = form.password.$viewValue !== form.password2.$viewValue;
+      };
+
       function validateExpiry(form, errors) {
         errors.blankExpiry = !form.expiry.$viewValue;
       };
@@ -97,6 +101,9 @@ angular.module('lytup.controllers', [])
         }
         if (form.password) {
           validatePassword(form, errors);
+        }
+        if (form.password && form.password2) {
+          matchPasswords(form, errors);
         }
         if (form.expiry) {
           validateExpiry(form, errors);
@@ -369,13 +376,29 @@ angular.module('lytup.controllers', [])
     '$location',
     '$routeParams',
     '$log',
+    '$modal',
     'Restangular',
-    function($scope, $window, $location, $routeParams, $log, Restangular) {
+    function($scope, $window, $location, $routeParams, $log, $modal, Restangular) {
       $log.info('Reset password controller');
-      Restangular.all('users').one('reset', $routeParams.key).get().then(function(usr) {
-        $window.localStorage.setItem('token', usr.token);
-        _.assign($scope.user, usr);
-        // $location.path('/');
+      $scope.user = {};
+      $scope.errors = {};
+
+      var modal = $modal.open({
+        scope: $scope,
+        templateUrl: '/tpl/modals/resetpwd.html',
+        size: 'sm'
       });
+
+      modal.result.finally(function() {
+        $location.path('/');
+      });
+
+      $scope.submit = function() {
+        Restangular.all('users').one('reset', $routeParams.key).get().then(function(usr) {
+          $window.localStorage.setItem('token', usr.token);
+          _.assign($scope.user, usr);
+          modal.close();
+        });
+      }
     }
   ])

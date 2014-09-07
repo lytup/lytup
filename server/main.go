@@ -57,6 +57,7 @@ func main() {
 		// Users
 		//*******
 		r.Get("/users", routes.FindUser)
+		// r.Patch("/users", binding.Bind(models.User{}), routes.UpdateUser)
 
 		//*********
 		// Folders

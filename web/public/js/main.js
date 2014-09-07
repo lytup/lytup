@@ -85,6 +85,7 @@ angular.module('lytup', [
           registeredEmail: 'This email is already registered',
           blankPassword: 'Password cannot be blank',
           invalidPassword: 'Password must be at least 6 characters',
+          mismatchPasswords: 'Passwords don\'t match',
           blankExpiry: 'Expiry is required',
           loginFailed: 'Login faild, invalid email or password'
         }[code];
