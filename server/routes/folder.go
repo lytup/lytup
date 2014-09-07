@@ -120,7 +120,7 @@ func downloadFolder(id string, rw http.ResponseWriter) error {
 			return err
 		}
 
-		f, err := os.Open(path.Join(L.Config.UploadDir, fol.Id, file.Name))
+		f, err := os.Open(path.Join(L.Config.UploadDirectory, fol.Id, file.Name))
 		defer f.Close()
 		if err != nil {
 			return err
@@ -143,7 +143,7 @@ func downloadFile(id string, rw http.ResponseWriter, thumbnail bool) error {
 		return err
 	}
 
-	folPath := path.Join(L.Config.UploadDir, folId)
+	folPath := path.Join(L.Config.UploadDirectory, folId)
 	f, e := os.Open(path.Join(folPath, file.Name))
 	if thumbnail {
 		if utils.IsVideo(file.Type) {

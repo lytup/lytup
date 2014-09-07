@@ -41,19 +41,19 @@ angular.module('lytup', [
         templateUrl: '/tpl/home.html'
       });
 
-      $routeProvider.when('/forgot/:key', {
+      $routeProvider.when('/confirm/:key', {
+        controller: 'ConfirmCtrl',
+        template: ''
+      });
+
+      $routeProvider.when('/forgot', {
         controller: 'ForgotPwdCtrl',
         templateUrl: '/tpl/home.html'
       });
 
-      // $routeProvider.when('/reset', {
-      //   controller: 'PasswordCtrl',
-      //   templateUrl: '/tpl/reset.html'
-      // });
-
-      $routeProvider.when('/confirm/:key', {
-        controller: 'ConfirmCtrl',
-        template: ''
+      $routeProvider.when('/reset/:key', {
+        controller: 'ResetPwdCtrl',
+        templateUrl: '/tpl/home.html'
       });
 
       $routeProvider.when('/:id', {

@@ -10,6 +10,7 @@ import (
 	"github.com/golang/glog"
 	L "github.com/labstack/lytup/server/lytup"
 	"github.com/labstack/lytup/server/models"
+	U "github.com/labstack/lytup/server/utils"
 	"github.com/martini-contrib/render"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -40,13 +41,17 @@ func CreateUser(rw http.ResponseWriter, ren render.Render, usr models.User) {
 	}
 }
 
-func ConfirmUser(rw http.ResponseWriter, ren render.Render, params martini.Params) {
+func ConfirmUser(rw http.ResponseWriter, params martini.Params) {
 	// Get user id
 	r := L.Redis()
 	defer r.Close()
-	id, err := redis.String(r.Do("GET", params["key"]))
+	id, err := redis.String(r.Do("GET", "confirmusr:"+params["key"]))
 	if err != nil {
-		rw.WriteHeader(http.StatusNotFound)
+		if err == redis.ErrNil {
+			rw.WriteHeader(http.StatusNotFound)
+		} else {
+			rw.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -67,14 +72,69 @@ func ConfirmUser(rw http.ResponseWriter, ren render.Render, params martini.Param
 				glog.Error(err)
 				rw.WriteHeader(http.StatusInternalServerError)
 			} else {
-				ren.JSON(http.StatusOK, usr.Render())
+				rw.WriteHeader(http.StatusOK)
 			}
 		}
 	}
 }
 
-func ForgotPassword(rw http.ResponseWriter, usr *models.User) {
+func ForgotPassword(rw http.ResponseWriter, usr models.User) {
+	if usr, err := models.FindUserByEmail(usr.Email); err != nil {
+		glog.Error(err)
+		if err == mgo.ErrNotFound {
+			rw.WriteHeader(http.StatusNotFound)
+		} else {
+			rw.WriteHeader(http.StatusInternalServerError)
+		}
+	} else {
+		// Create password reset key with expiry
+		r := L.Redis()
+		defer r.Close()
+		key := U.RandomString(32)
+		k := "resetpwd:" + key
+		r.Send("MULTI")
+		r.Send("SET", k, usr.Id.Hex())
+		r.Send("EXPIRE", k, L.Config.PasswordResetExpiry)
+		if _, err := r.Do("EXEC"); err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
+		// Send password reset email
+		m := map[string]string{
+			"name":  usr.FirstName,
+			"email": usr.Email,
+			"key":   key,
+		}
+		go U.EmailPasswordReset(m)
+	}
+}
+
+func ResetPassword(rw http.ResponseWriter, ren render.Render, params martini.Params) {
+	// Get user id
+	r := L.Redis()
+	defer r.Close()
+	id, err := redis.String(r.Do("GET", "resetpwd:"+params["key"]))
+	if err != nil {
+		if err == redis.ErrNil {
+			rw.WriteHeader(http.StatusNotFound)
+		} else {
+			rw.WriteHeader(http.StatusInternalServerError)
+		}
+		return
+	}
+
+	if usr, err := models.FindUserById(id); err != nil {
+		glog.Error(err)
+		if err == mgo.ErrNotFound {
+			rw.WriteHeader(http.StatusNotFound)
+		} else {
+			rw.WriteHeader(http.StatusInternalServerError)
+		}
+	} else {
+		usr.Login(false)
+		ren.JSON(http.StatusOK, usr.Render())
+	}
 }
 
 func FindUser(rw http.ResponseWriter, ren render.Render, usr *models.User) {
@@ -91,7 +151,7 @@ func FindUser(rw http.ResponseWriter, ren render.Render, usr *models.User) {
 }
 
 func Login(rw http.ResponseWriter, ren render.Render, usr models.User) {
-	if err := usr.Login(); err != nil {
+	if err := usr.Login(true); err != nil {
 		glog.Warning(err)
 		if err == mgo.ErrNotFound {
 			rw.WriteHeader(http.StatusNotFound)
@@ -111,13 +171,11 @@ func ValidateToken(req *http.Request, rw http.ResponseWriter, ctx martini.Contex
 			return []byte(L.Config.Key), nil
 		})
 		if err == nil && t.Valid {
-			id := t.Claims["usr-id"].(string)
+			id := t.Claims["sub"].(string)
 			usr := models.User{Id: bson.ObjectIdHex(id)}
 			ctx.Map(&usr)
-			return
-		} else {
-			glog.Warning(err)
 		}
+		return
 	}
 	rw.WriteHeader(http.StatusUnauthorized)
 }

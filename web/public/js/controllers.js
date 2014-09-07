@@ -321,29 +321,28 @@ angular.module('lytup.controllers', [])
     }
   ]).controller('ConfirmCtrl', [
     '$scope',
-    '$window',
     '$location',
     '$routeParams',
     '$log',
     'Restangular',
-    function($scope, $window, $location, $routeParams, $log, Restangular) {
+    function($scope, $location, $routeParams, $log, Restangular) {
       $log.info('Confirm controller');
       // Send confirmation request
-      Restangular.all('users').one('confirm', $routeParams.key).get().then(function(usr) {
-        $window.localStorage.setItem('token', usr.token);
-        $scope.user = usr;
-        $location.path('/');
+      Restangular.all('users').one('confirm', $routeParams.key).get().then(function() {
+        // $window.localStorage.setItem('token', usr.token);
+        // $scope.user = usr;
+        // $location.path('/');
       });
     }
   ]).controller('ForgotPwdCtrl', [
     '$scope',
     '$location',
-    '$routeParams',
     '$log',
     '$modal',
     'Restangular',
-    function($scope, $location, $routeParams, $log, $modal, Restangular) {
+    function($scope, $location, $log, $modal, Restangular) {
       $log.info('Forgot password controller');
+      $scope.user = {};
       $scope.errors = {};
 
       var modal = $modal.open({
@@ -357,11 +356,26 @@ angular.module('lytup.controllers', [])
       });
 
       $scope.submit = function() {
-        Restangular.all('users').one('forgot', $routeParams.key).get().then(function(usr) {
-          $window.localStorage.setItem('token', usr.token);
-          $scope.user = usr;
-          $location.path('/');
+        Restangular.all('users').all('forgot').post($scope.user).then(function() {
+          // $window.localStorage.setItem('token', usr.token);
+          // $scope.user = usr;
+          // $location.path('/');
         });
       }
+    }
+  ]).controller('ResetPwdCtrl', [
+    '$scope',
+    '$window',
+    '$location',
+    '$routeParams',
+    '$log',
+    'Restangular',
+    function($scope, $window, $location, $routeParams, $log, Restangular) {
+      $log.info('Reset password controller');
+      Restangular.all('users').one('reset', $routeParams.key).get().then(function(usr) {
+        $window.localStorage.setItem('token', usr.token);
+        _.assign($scope.user, usr);
+        // $location.path('/');
+      });
     }
   ])

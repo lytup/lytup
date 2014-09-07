@@ -44,9 +44,10 @@ func main() {
 		// Users
 		//*******
 		r.Post("/users", binding.Bind(models.User{}), routes.CreateUser)
+		r.Post("/users/login", binding.Bind(models.User{}), routes.Login)
 		m.Get("/users/confirm/:key", routes.ConfirmUser)
 		m.Post("/users/forgot", binding.Bind(models.User{}), routes.ForgotPassword)
-		r.Post("/users/login", binding.Bind(models.User{}), routes.Login)
+		m.Get("/users/reset/:key", routes.ResetPassword)
 
 		r.Get("/folders/:id", routes.FindFolderById)
 	})

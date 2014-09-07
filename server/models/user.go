@@ -35,11 +35,11 @@ func FindUserById(id string) (*User, error) {
 	return usr, nil
 }
 
-func FindUserByConfirmationCode(code string) (*User, error) {
+func FindUserByEmail(email string) (*User, error) {
 	db := L.NewDb("users")
 	defer db.Session.Close()
 	usr := &User{}
-	if err := db.Collection.Find(bson.M{"confirmationCode": code}).One(usr); err != nil {
+	if err := db.Collection.Find(bson.M{"email": email}).One(usr); err != nil {
 		return nil, err
 	}
 	return usr, nil
@@ -63,19 +63,19 @@ func (usr *User) Create() error {
 	r := L.Redis()
 	defer r.Close()
 	key := U.RandomString(32)
+	k := "confirmusr:" + key
 	r.Send("MULTI")
-	r.Send("SET", key, usr.Id.Hex())
-	r.Send("EXPIRE", key, L.Config.ConfirmationExpiry)
+	r.Send("SET", k, usr.Id.Hex())
+	r.Send("EXPIRE", k, L.Config.ConfirmationExpiry)
 	if _, err := r.Do("EXEC"); err != nil {
 		return err
 	}
 
 	// Send confirmation email
 	m := map[string]string{
-		"hostname": L.Config.Hostname,
-		"name":     usr.FirstName,
-		"email":    usr.Email,
-		"key":      key,
+		"name":  usr.FirstName,
+		"email": usr.Email,
+		"key":   key,
 	}
 	go U.EmailConfirmation(m)
 
@@ -87,22 +87,25 @@ func (usr *User) Find() error {
 	return err
 }
 
-func (usr *User) Login() error {
+func (usr *User) Login(verify bool) error {
 	pwd := usr.Password // Grab the password before it's lost
 
-	db := L.NewDb("users")
-	defer db.Session.Close()
-	if err := db.Collection.Find(bson.M{"email": usr.Email}).One(usr); err != nil {
-		return err
-	}
+	if verify {
+		db := L.NewDb("users")
+		defer db.Session.Close()
+		if err := db.Collection.Find(bson.M{"email": usr.Email}).One(usr); err != nil {
+			return err
+		}
 
-	if !bytes.Equal(usr.PasswordHash, U.HashPassword(pwd, usr.Salt)) {
-		return mgo.ErrNotFound
+		if !bytes.Equal(usr.PasswordHash, U.HashPassword(pwd, usr.Salt)) {
+			return mgo.ErrNotFound
+		}
 	}
 
 	token := jwt.New(jwt.GetSigningMethod("HS256"))
+	token.Claims["iss"] = "lytup"
+	token.Claims["sub"] = usr.Id
 	token.Claims["exp"] = time.Now().Add(120 * time.Hour).Unix()
-	token.Claims["usr-id"] = usr.Id
 	var err error
 	if usr.Token, err = token.SignedString([]byte(L.Config.Key)); err != nil {
 		return err

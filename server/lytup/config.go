@@ -34,14 +34,14 @@ type EmailConfig struct {
 }
 
 type config struct {
-	Hostname           string        `json:"hostname"`
-	Key                string        `json:"key"`
-	ConfirmationExpiry uint          `json:"confirmationExpiry"`
-	PassResetExpiry    uint          `json:"PassResetExpiry"`
-	UploadDir          string        `json:"uploadDir"`
-	MongoDb            MongoDbConfig `json:"mongoDb"`
-	Redis              RedisConfig   `json:"redis"`
-	Email              EmailConfig   `json:"email"`
+	Hostname            string        `json:"hostname"`
+	Key                 string        `json:"key"`
+	ConfirmationExpiry  uint          `json:"confirmationExpiry"`
+	PasswordResetExpiry uint          `json:"PasswordResetExpiry"`
+	UploadDirectory     string        `json:"uploadDirectory"`
+	MongoDb             MongoDbConfig `json:"mongoDb"`
+	Redis               RedisConfig   `json:"redis"`
+	Email               EmailConfig   `json:"email"`
 }
 
 var Config config

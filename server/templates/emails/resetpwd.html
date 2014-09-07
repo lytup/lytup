@@ -1,0 +1,8 @@
+{{define "content"}}
+  Hi {{.name}},
+  
+  <p>
+    You recently requested a password reset. Follow this link to pick a new one:
+    <br>http://{{.hostname}}/reset/{{.key}}
+  </p>
+{{end}}

@@ -110,7 +110,7 @@ func Upload(req *http.Request, rw http.ResponseWriter, params martini.Params,
 			}
 		} else if fileName := part.FileName(); fileName != "" {
 			// Create folder
-			folPath := path.Join(L.Config.UploadDir, folId)
+			folPath := path.Join(L.Config.UploadDirectory, folId)
 			err = os.MkdirAll(folPath, 0755)
 			if err != nil {
 				panic(err)

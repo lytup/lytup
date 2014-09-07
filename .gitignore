@@ -13,5 +13,3 @@ bower_components
 
 */Godeps/*
 !*/Godeps/Godeps.json
-
-web/public/css/main.less

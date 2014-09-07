@@ -2,8 +2,8 @@
   "hostname": "",
   "key": "",
   "confirmationExpiry": 172800,
-  "passResetExpiry": 3600,
-  "uploadDir": "/tmp",
+  "passwordResetExpiry": 3600,
+  "uploadDirectory": "/tmp",
   "mongoDb": {
     "host": "localhost",
     "port": 27017,

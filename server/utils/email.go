@@ -24,7 +24,7 @@ var (
 
 func EmailConfirmation(data map[string]string) error {
 	var b bytes.Buffer
-	if err := templates.ExecuteTemplate(&b, "confirmation.html", data); err != nil {
+	if err := templates.ExecuteTemplate(&b, "confirmusr.html", data); err != nil {
 		glog.Error(err)
 		return err
 	}
@@ -33,6 +33,29 @@ func EmailConfirmation(data map[string]string) error {
 		To:      []string{data["email"]},
 		From:    fmt.Sprintf("%s <%s>", cfg.FromName, cfg.FromEmail),
 		Subject: "Welcome to Lytup",
+		HTML:    b.Bytes(),
+		Headers: textproto.MIMEHeader{},
+	}
+
+	if err := e.Send(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), auth); err != nil {
+		glog.Error(err)
+		return err
+	}
+
+	return nil
+}
+
+func EmailPasswordReset(data map[string]string) error {
+	var b bytes.Buffer
+	if err := templates.ExecuteTemplate(&b, "resetpwd.html", data); err != nil {
+		glog.Error(err)
+		return err
+	}
+
+	e := &email.Email{
+		To:      []string{data["email"]},
+		From:    fmt.Sprintf("%s <%s>", cfg.FromName, cfg.FromEmail),
+		Subject: "Lytup password reset",
 		HTML:    b.Bytes(),
 		Headers: textproto.MIMEHeader{},
 	}
