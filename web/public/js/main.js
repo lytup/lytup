@@ -89,6 +89,10 @@ angular.module('lytup', [
           blankExpiry: 'Expiry is required',
           loginFailed: 'Login faild, invalid email or password'
         }[code];
-      }
+      };
+
+      toastr.options = {
+        'positionClass': 'toast-bottom-right'
+      };
     }
   ]);

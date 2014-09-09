@@ -22,4 +22,21 @@ angular.module('lytup.services', [])
       };
     }
   ])
+  .factory('Notification', [function() {
+      return {
+        info: function(msg) {
+          toastr.info(msg);
+        },
+        success: function(msg) {
+          toastr.success(msg);
+        },
+        warning: function(msg) {
+          toastr.warning(msg);
+        },
+        error: function(msg) {
+          toastr.error(msg);
+        }
+      }
+    }
+  ])
   .value('version', '0.0.1');

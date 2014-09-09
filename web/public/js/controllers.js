@@ -332,13 +332,13 @@ angular.module('lytup.controllers', [])
     '$routeParams',
     '$log',
     'Restangular',
-    function($scope, $location, $routeParams, $log, Restangular) {
+    'Notification',
+    function($scope, $location, $routeParams, $log, Restangular, Notification) {
       $log.info('Confirm controller');
-      // Send confirmation request
+
       Restangular.all('users').one('confirm', $routeParams.key).get().then(function() {
-        // $window.localStorage.setItem('token', usr.token);
-        // $scope.user = usr;
-        // $location.path('/');
+        $location.path('/');
+        Notification.success('Your email has been confirmed')
       });
     }
   ]).controller('ForgotPwdCtrl', [
@@ -364,9 +364,7 @@ angular.module('lytup.controllers', [])
 
       $scope.submit = function() {
         Restangular.all('users').all('forgot').post($scope.user).then(function() {
-          // $window.localStorage.setItem('token', usr.token);
-          // $scope.user = usr;
-          // $location.path('/');
+          modal.close();
         });
       }
     }
@@ -378,7 +376,8 @@ angular.module('lytup.controllers', [])
     '$log',
     '$modal',
     'Restangular',
-    function($scope, $window, $location, $routeParams, $log, $modal, Restangular) {
+    'Notification',
+    function($scope, $window, $location, $routeParams, $log, $modal, Restangular, Notification) {
       $log.info('Reset password controller');
       $scope.user = {};
       $scope.errors = {};
@@ -398,6 +397,7 @@ angular.module('lytup.controllers', [])
           $window.localStorage.setItem('token', usr.token);
           _.assign($scope.user, usr);
           modal.close();
+          Notification.success('Your new password has been saved')
         });
       }
     }
