@@ -22,11 +22,6 @@ angular.module('lytup', [
 
       $httpProvider.interceptors.push('AuthInterceptor');
 
-      // $routeProvider.when('/', {
-      //   controller: 'LandingCtrl',
-      //   templateUrl: '/tpl/landing.html'
-      // });
-
       $routeProvider.when('/', {
         templateUrl: '/tpl/home.html'
       });
@@ -41,8 +36,8 @@ angular.module('lytup', [
         templateUrl: '/tpl/home.html'
       });
 
-      $routeProvider.when('/confirm/:key', {
-        controller: 'ConfirmCtrl',
+      $routeProvider.when('/verify/:key', {
+        controller: 'VerifyEmailCtrl',
         template: ''
       });
 
@@ -76,19 +71,17 @@ angular.module('lytup', [
     function($rootScope) {
       $rootScope.BASE_URI = location.protocol + '//' + location.hostname + (location.port && ':' + location.port);
 
-      $rootScope.MESSAGE = function(code) {
+      $rootScope.MESSAGE = function(key) {
         return {
           blankFirstName: 'First name is required',
           blankLastName: 'Last name is required',
           blankEmail: 'Email is required',
           invalidEmail: 'Email is invalid',
-          registeredEmail: 'This email is already registered',
           blankPassword: 'Password cannot be blank',
           invalidPassword: 'Password must be at least 6 characters',
-          mismatchPasswords: 'Passwords don\'t match',
-          blankExpiry: 'Expiry is required',
-          loginFailed: 'Login faild, invalid email or password'
-        }[code];
+          mismatchPasswords: 'Passwords do not match',
+          blankExpiry: 'Expiry is required'
+        }[key];
       };
 
       toastr.options = {

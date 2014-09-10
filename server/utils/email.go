@@ -22,9 +22,9 @@ var (
 	)
 )
 
-func EmailConfirmation(data map[string]string) error {
+func EmailVerifyEmail(data map[string]string) error {
 	var b bytes.Buffer
-	if err := templates.ExecuteTemplate(&b, "confirmusr.html", data); err != nil {
+	if err := templates.ExecuteTemplate(&b, "verify_email.html", data); err != nil {
 		glog.Error(err)
 		return err
 	}
@@ -47,7 +47,7 @@ func EmailConfirmation(data map[string]string) error {
 
 func EmailPasswordReset(data map[string]string) error {
 	var b bytes.Buffer
-	if err := templates.ExecuteTemplate(&b, "resetpwd.html", data); err != nil {
+	if err := templates.ExecuteTemplate(&b, "reset_pwd.html", data); err != nil {
 		glog.Error(err)
 		return err
 	}

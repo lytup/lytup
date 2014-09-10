@@ -12,79 +12,62 @@ import (
 	"github.com/labstack/lytup/server/models"
 	U "github.com/labstack/lytup/server/utils"
 	"github.com/martini-contrib/render"
-	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-// var (
-// 	PRIVATE_KEY []byte
-// 	PUBLIC_KEY  []byte
-// )
-//
-// func init() {
-// 	usr, _ := user.Current()
-// 	PRIVATE_KEY, _ = ioutil.ReadFile(path.Join(usr.HomeDir, ".ssh/id_rsa"))
-// 	PUBLIC_KEY, _ = ioutil.ReadFile(path.Join(usr.HomeDir, ".ssh/id_rsa.pub"))
-// 	log.Println(string(PRIVATE_KEY))
-// }
+var msg = L.Config.Message
 
-func CreateUser(rw http.ResponseWriter, ren render.Render, usr models.User) {
+func CreateUser(ren render.Render, usr models.User) {
 	if err := usr.Create(); err != nil {
-		glog.Error(err)
-		data := map[string]interface{}{"error": err}
-		if mgo.IsDup(err) {
-			data["error"] = "duplicate"
+		if err == L.ErrEmailIsRegistered {
+			handleError(ren, msg.EmailIsRegisteredError, http.StatusConflict)
+		} else {
+			handleError(ren, err.Error(), http.StatusInternalServerError)
 		}
-		ren.JSON(http.StatusInternalServerError, data)
 	} else {
 		ren.JSON(http.StatusCreated, usr.Render())
 	}
 }
 
-func ConfirmUser(rw http.ResponseWriter, params martini.Params) {
+func VerifyEmail(params martini.Params, ren render.Render) {
 	// Get user id
 	r := L.Redis()
 	defer r.Close()
-	id, err := redis.String(r.Do("GET", "confirmusr:"+params["key"]))
+	id, err := redis.String(r.Do("GET", "verify:email:"+params["key"]))
 	if err != nil {
 		if err == redis.ErrNil {
-			rw.WriteHeader(http.StatusNotFound)
+			handleError(ren, msg.VerifyEmailFailed, http.StatusNotFound)
 		} else {
-			rw.WriteHeader(http.StatusInternalServerError)
+			handleError(ren, err.Error(), http.StatusInternalServerError)
 		}
 		return
 	}
 
 	if usr, err := models.FindUserById(id); err != nil {
-		glog.Error(err)
-		if err == mgo.ErrNotFound {
-			rw.WriteHeader(http.StatusNotFound)
-		} else {
-			rw.WriteHeader(http.StatusInternalServerError)
-		}
+		handleError(ren, err.Error(), http.StatusInternalServerError)
 	} else {
-		if usr.Confirmed {
-			// Already confirmed
-			rw.WriteHeader(http.StatusBadRequest)
+		if usr.EmailVerified {
+			// Already verified
+			handleError(ren, msg.EmailIsVerifiedError, http.StatusBadRequest)
 		} else {
-			usr.Confirmed = true
+			usr.EmailVerified = true
 			if err := usr.Save(); err != nil {
-				glog.Error(err)
-				rw.WriteHeader(http.StatusInternalServerError)
+				handleError(ren, err.Error(), http.StatusInternalServerError)
 			} else {
-				rw.WriteHeader(http.StatusOK)
+				ren.JSON(http.StatusOK, map[string]string{
+					"message": msg.VerifyEmailSuccess,
+				})
 			}
 		}
 	}
 }
 
-func ForgotPassword(rw http.ResponseWriter, usr models.User) {
+func ForgotPassword(ren render.Render, usr models.User) {
 	if usr, err := models.FindUserByEmail(usr.Email); err != nil {
-		glog.Error(err)
-		if err == mgo.ErrNotFound {
-			rw.WriteHeader(http.StatusNotFound)
+		if err == L.ErrEmailNotFound {
+			handleError(ren, err.Error(), http.StatusNotFound)
 		} else {
-			rw.WriteHeader(http.StatusInternalServerError)
+			handleError(ren, err.Error(), http.StatusInternalServerError)
 		}
 	} else {
 		// Create password reset key with expiry
@@ -96,7 +79,7 @@ func ForgotPassword(rw http.ResponseWriter, usr models.User) {
 		r.Send("SET", k, usr.Id.Hex())
 		r.Send("EXPIRE", k, L.Config.PasswordResetExpiry)
 		if _, err := r.Do("EXEC"); err != nil {
-			rw.WriteHeader(http.StatusInternalServerError)
+			handleError(ren, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -110,27 +93,22 @@ func ForgotPassword(rw http.ResponseWriter, usr models.User) {
 	}
 }
 
-func ResetPassword(rw http.ResponseWriter, ren render.Render, params martini.Params) {
+func ResetPassword(params martini.Params, ren render.Render) {
 	// Get user id
 	r := L.Redis()
 	defer r.Close()
 	id, err := redis.String(r.Do("GET", "resetpwd:"+params["key"]))
 	if err != nil {
 		if err == redis.ErrNil {
-			rw.WriteHeader(http.StatusNotFound)
+			handleError(ren, msg.ResetPasswordFailed, http.StatusNotFound)
 		} else {
-			rw.WriteHeader(http.StatusInternalServerError)
+			handleError(ren, err.Error(), http.StatusInternalServerError)
 		}
 		return
 	}
 
 	if usr, err := models.FindUserById(id); err != nil {
-		glog.Error(err)
-		if err == mgo.ErrNotFound {
-			rw.WriteHeader(http.StatusNotFound)
-		} else {
-			rw.WriteHeader(http.StatusInternalServerError)
-		}
+		handleError(ren, err.Error(), http.StatusInternalServerError)
 	} else {
 		usr.Update()
 		usr.Login(false)
@@ -138,26 +116,24 @@ func ResetPassword(rw http.ResponseWriter, ren render.Render, params martini.Par
 	}
 }
 
-func FindUser(rw http.ResponseWriter, ren render.Render, usr *models.User) {
+func FindUser(ren render.Render, usr *models.User) {
 	if err := usr.Find(); err != nil {
-		glog.Warning(err)
-		if err == mgo.ErrNotFound {
-			rw.WriteHeader(http.StatusNotFound)
+		if err == L.ErrUserNotFound {
+			handleError(ren, err.Error(), http.StatusNotFound)
 		} else {
-			rw.WriteHeader(http.StatusInternalServerError)
+			handleError(ren, err.Error(), http.StatusInternalServerError)
 		}
 	} else {
 		ren.JSON(http.StatusOK, usr.Render())
 	}
 }
 
-func Login(rw http.ResponseWriter, ren render.Render, usr models.User) {
+func Login(ren render.Render, usr models.User) {
 	if err := usr.Login(true); err != nil {
-		glog.Warning(err)
-		if err == mgo.ErrNotFound {
-			rw.WriteHeader(http.StatusNotFound)
+		if err == L.ErrLogin {
+			handleError(ren, err.Error(), http.StatusNotFound)
 		} else {
-			rw.WriteHeader(http.StatusInternalServerError)
+			handleError(ren, err.Error(), http.StatusInternalServerError)
 		}
 	} else {
 		ren.JSON(http.StatusOK, usr.Render())
@@ -177,19 +153,32 @@ func Login(rw http.ResponseWriter, ren render.Render, usr models.User) {
 // 	}
 // }
 
-func ValidateToken(req *http.Request, rw http.ResponseWriter, ctx martini.Context) {
+func ValidateToken(req *http.Request, ren render.Render, ctx martini.Context) {
 	parts := strings.Fields(req.Header.Get("Authorization"))
 	if len(parts) == 2 {
 		token := parts[1]
 		t, err := jwt.Parse(token, func(t *jwt.Token) ([]byte, error) {
 			return []byte(L.Config.Key), nil
 		})
-		if err == nil && t.Valid {
+		if err != nil || !t.Valid {
+			handleError(ren, msg.ValidateTokenFailed, http.StatusUnauthorized)
+		} else {
 			id := t.Claims["sub"].(string)
 			usr := models.User{Id: bson.ObjectIdHex(id)}
 			ctx.Map(&usr)
 		}
-		return
 	}
-	rw.WriteHeader(http.StatusUnauthorized)
+}
+
+func handleError(ren render.Render, msg string, code int) {
+	data := map[string]string{
+		"message": msg,
+	}
+	if code == http.StatusInternalServerError {
+		glog.Error(msg)
+		data["message"] = "Looks like something went wrong!"
+	} else {
+		glog.Warning(msg)
+	}
+	ren.JSON(code, data)
 }

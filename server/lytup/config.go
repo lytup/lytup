@@ -2,29 +2,30 @@ package lytup
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 
 	"github.com/golang/glog"
 )
 
-// Directories where config file can be found
-var dirs = [...]string{"/etc", "/usr/local/etc", "."}
+var (
+	dirs   = [...]string{"/etc", "/usr/local/etc", "."} // Directories where config file can be found
+	Config config
+)
 
-type MongoDbConfig struct {
+type mongoDbConfig struct {
 	Host     string `json:"host"`
 	Port     uint   `json:"port"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-type RedisConfig struct {
+type redisConfig struct {
 	Host     string `json:"host"`
 	Port     uint   `json:"port"`
 	Password string `json:"password"`
 }
 
-type EmailConfig struct {
+type emailConfig struct {
 	Host      string `json:"host"`
 	Port      uint   `json:"port"`
 	Username  string `json:"username"`
@@ -33,18 +34,30 @@ type EmailConfig struct {
 	FromEmail string `json:"fromEmail"`
 }
 
+type messageConfig struct {
+	EmailIsRegisteredError string `json:"emailIsRegisteredError"`
+	VerifyEmailSuccess     string `json:"verifyEmailSuccess"`
+	VerifyEmailFailed      string `json:"verifyEmailFailed"`
+	EmailIsVerifiedError   string `json:"emailIsVerifiedError"`
+	EmailNotFoundError     string `json:"emailNotFoundError"`
+	ResetPasswordSuccess   string `json:"resetPasswordSuccess"`
+	ResetPasswordFailed    string `json:"resetPasswordFailed"`
+	UserNotFoundError      string `json:"userNotFoundError"`
+	LoginFailed            string `json:"loginFailed"`
+	ValidateTokenFailed    string `json:"validateTokenFailed"`
+}
+
 type config struct {
 	Hostname            string        `json:"hostname"`
 	Key                 string        `json:"key"`
-	ConfirmationExpiry  uint          `json:"confirmationExpiry"`
+	VerifyEmailExpiry   uint          `json:"verifyEmailExpiry"`
 	PasswordResetExpiry uint          `json:"PasswordResetExpiry"`
 	UploadDirectory     string        `json:"uploadDirectory"`
-	MongoDb             MongoDbConfig `json:"mongoDb"`
-	Redis               RedisConfig   `json:"redis"`
-	Email               EmailConfig   `json:"email"`
+	MongoDb             mongoDbConfig `json:"mongoDb"`
+	Redis               redisConfig   `json:"redis"`
+	Email               emailConfig   `json:"email"`
+	Message             messageConfig `json:"message"`
 }
-
-var Config config
 
 func init() {
 	// Load config
@@ -53,8 +66,10 @@ func init() {
 		if err != nil {
 			continue
 		}
-		json.Unmarshal(b, &Config)
+		if err := json.Unmarshal(b, &Config); err != nil {
+			glog.Fatal(err)
+		}
 		return
 	}
-	glog.Fatal(fmt.Sprintf("Config file not found in %v", dirs))
+	glog.Fatalf("Config file not found in %v", dirs)
 }

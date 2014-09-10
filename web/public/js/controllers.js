@@ -235,8 +235,8 @@ angular.module('lytup.controllers', [])
           $scope.signin($scope.user);
           modal.close();
         }, function(res) {
-          if (res.data.error === 'duplicate') {
-            $scope.errors.registeredEmail = true;
+          if (res.status === 409) {
+            $scope.errors.emailIsRegistered = true;
           }
         });
       };
@@ -278,7 +278,7 @@ angular.module('lytup.controllers', [])
           if (res.status === 404) {
             $scope.errors.loginFailed = true;
           }
-        })
+        });
       }
     }
   ]).controller('FolderModalCtrl', [
@@ -326,7 +326,7 @@ angular.module('lytup.controllers', [])
         }
       };
     }
-  ]).controller('ConfirmCtrl', [
+  ]).controller('VerifyEmailCtrl', [
     '$scope',
     '$location',
     '$routeParams',
@@ -334,11 +334,13 @@ angular.module('lytup.controllers', [])
     'Restangular',
     'Notification',
     function($scope, $location, $routeParams, $log, Restangular, Notification) {
-      $log.info('Confirm controller');
+      $log.info('Verify email controller');
 
-      Restangular.all('users').one('confirm', $routeParams.key).get().then(function() {
+      Restangular.all('users').one('verify', $routeParams.key).get().then(function() {
+        // TODO: Read messages from server
+        Notification.success('Your email has been verified.');
+      }).finally(function() {
         $location.path('/');
-        Notification.success('Your email has been confirmed')
       });
     }
   ]).controller('ForgotPwdCtrl', [
@@ -354,7 +356,7 @@ angular.module('lytup.controllers', [])
 
       var modal = $modal.open({
         scope: $scope,
-        templateUrl: '/tpl/modals/forgotpwd.html',
+        templateUrl: '/tpl/modals/forgot_pwd.html',
         size: 'sm'
       });
 
@@ -365,6 +367,10 @@ angular.module('lytup.controllers', [])
       $scope.submit = function() {
         Restangular.all('users').all('forgot').post($scope.user).then(function() {
           modal.close();
+        }, function(res) {
+          if (res.status === 404) {
+            $scope.errors.emailNotFound = true;
+          }
         });
       }
     }
@@ -384,7 +390,7 @@ angular.module('lytup.controllers', [])
 
       var modal = $modal.open({
         scope: $scope,
-        templateUrl: '/tpl/modals/resetpwd.html',
+        templateUrl: '/tpl/modals/reset_pwd.html',
         size: 'sm'
       });
 
@@ -396,8 +402,9 @@ angular.module('lytup.controllers', [])
         Restangular.all('users').one('reset', $routeParams.key).get().then(function(usr) {
           $window.localStorage.setItem('token', usr.token);
           _.assign($scope.user, usr);
+          // TODO: Read messages from server
+          Notification.success('Your new password has been saved.')
           modal.close();
-          Notification.success('Your new password has been saved')
         });
       }
     }

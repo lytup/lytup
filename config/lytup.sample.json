@@ -1,7 +1,7 @@
 {
   "hostname": "",
   "key": "",
-  "confirmationExpiry": 172800,
+  "verifyEmailExpiry": 172800,
   "passwordResetExpiry": 3600,
   "uploadDirectory": "/tmp",
   "mongoDb": {
@@ -22,5 +22,17 @@
     "password": "",
     "fromName": "Lytup",
     "fromEmail": "no-reply@lytup.com"
+  },
+  "message": {
+    "emailIsRegisteredError": "This email is already registered.",
+    "verifyEmailSuccess": "Your email has been verified.",
+    "verifyEmailFailed": "Email verification failed, bad or expired key.",
+    "emailIsVerifiedError": "This email is already verified.",
+    "emailNotFoundError": "Email does not exist.",
+    "resetPasswordSuccess": "Your new password has been saved.",
+    "resetPasswordFailed": "Reset password failed, bad or expired key.",
+    "userNotFoundError": "User does not exist.",
+    "loginFailed": "Login failed, invalid email or password.",
+    "validateTokenFailed": "Authentication failed, bad or expired token."
   }
 }

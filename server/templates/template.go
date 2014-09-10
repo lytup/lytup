@@ -32,7 +32,6 @@ func init() {
 			return nil
 		}
 
-		// path := "confirmusr.html"
 		baseTpl := template.Must(template.New("_").Parse(baseStr))
 		emailStr := box.MustString(path)
 		emailTpl := template.Must(baseTpl.Parse(emailStr))

@@ -6,10 +6,7 @@
 </div>
 <form role="form" name="form" novalidate ng-submit="validate(form, errors) && submit()">
   <div class="modal-body">
-    <div class="form-group" ng-class="{'has-error': errors.blankEmail || errors.invalidEmail || errors.loginFailed}">
-      <p ng-show="errors.loginFailed" class="help-block">
-        {{MESSAGE('loginFailed')}}
-      </p>
+    <div class="form-group" ng-class="{'has-error': errors.blankEmail || errors.invalidEmail || errors.emailNotFound}">
       <input type="email" name="email" class="form-control" placeholder="Email" ly-focus required ng-model="user.email">
       <p ng-show="errors.blankEmail" class="help-block">
         {{MESSAGE('blankEmail')}}

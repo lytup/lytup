@@ -30,14 +30,14 @@ import (
 // 	}
 // }
 
-func TestEmailConfirmation(t *testing.T) {
+func TestEmailVerifyEmail(t *testing.T) {
 	m := map[string]string{
 		"hostname": "localhost:1431",
 		"name":     "Vishal Rana",
 		"email":    "vr@labstack.com",
 		"key":      RandomString(32),
 	}
-	if err := EmailConfirmation(m); err != nil {
+	if err := EmailVerifyEmail(m); err != nil {
 		t.Error(err)
 	}
 }

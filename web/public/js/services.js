@@ -4,7 +4,8 @@ angular.module('lytup.services', [])
   .factory('AuthInterceptor', [
     '$window',
     '$q',
-    function($window, $q) {
+    'Notification',
+    function($window, $q, Notification) {
       return {
         request: function(cfg) {
           var token = $window.localStorage.getItem('token');
@@ -17,12 +18,14 @@ angular.module('lytup.services', [])
           if (res.status === 401) {
             $window.localStorage.removeItem('token');
           }
+          Notification.error(res.data.message);
           return $q.reject(res);
         }
       };
     }
   ])
-  .factory('Notification', [function() {
+  .factory('Notification', [
+    function() {
       return {
         info: function(msg) {
           toastr.info(msg);

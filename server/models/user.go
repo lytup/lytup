@@ -12,17 +12,17 @@ import (
 )
 
 type User struct {
-	Id           bson.ObjectId `json:"id" bson:"_id"`
-	FirstName    string        `json:"firstName" bson:"firstName"`
-	LastName     string        `json:"lastName" bson:"lastName"`
-	Email        string        `json:"email" bson:"email"`
-	Password     string        `json:"password,omitempty" bson:"-"`
-	PasswordHash []byte        `json:"-" bson:"password"`
-	Token        string        `json:"token,omitempty" bson:"-"`
-	CreatedAt    time.Time     `json:"createdAt" bson:"createdAt"`
-	UpdatedAt    time.Time     `json:"updatedAt" bson:"updatedAt"`
-	Confirmed    bool          `json:"confirmed" bson:"confirmed"`
-	Salt         string        `json:"-" bson:"salt"`
+	Id            bson.ObjectId `json:"id" bson:"_id"`
+	FirstName     string        `json:"firstName" bson:"firstName"`
+	LastName      string        `json:"lastName" bson:"lastName"`
+	Email         string        `json:"email" bson:"email"`
+	Password      string        `json:"password,omitempty" bson:"-"`
+	PasswordHash  []byte        `json:"-" bson:"password"`
+	Token         string        `json:"token,omitempty" bson:"-"`
+	CreatedAt     time.Time     `json:"createdAt" bson:"createdAt"`
+	UpdatedAt     time.Time     `json:"updatedAt" bson:"updatedAt"`
+	EmailVerified bool          `json:"emailVerified" bson:"emailVerified"`
+	Salt          string        `json:"-" bson:"salt"`
 }
 
 func FindUserById(id string) (*User, error) {
@@ -30,6 +30,9 @@ func FindUserById(id string) (*User, error) {
 	defer db.Session.Close()
 	usr := &User{}
 	if err := db.Collection.FindId(bson.ObjectIdHex(id)).One(usr); err != nil {
+		if err == mgo.ErrNotFound {
+			return nil, L.ErrUserNotFound
+		}
 		return nil, err
 	}
 	return usr, nil
@@ -40,6 +43,9 @@ func FindUserByEmail(email string) (*User, error) {
 	defer db.Session.Close()
 	usr := &User{}
 	if err := db.Collection.Find(bson.M{"email": email}).One(usr); err != nil {
+		if err == mgo.ErrNotFound {
+			return nil, L.ErrEmailNotFound
+		}
 		return nil, err
 	}
 	return usr, nil
@@ -49,35 +55,37 @@ func (usr *User) Create() error {
 	usr.Id = bson.NewObjectId()
 	usr.Salt = U.RandomString(16)
 	usr.PasswordHash = U.HashPassword(usr.Password, usr.Salt)
-	usr.Confirmed = false
+	usr.EmailVerified = false
 	usr.CreatedAt = time.Now()
 	usr.UpdatedAt = usr.CreatedAt
 
 	db := L.NewDb("users")
 	defer db.Session.Close()
 	if err := db.Collection.Insert(usr); err != nil {
-		return err
+		if mgo.IsDup(err) {
+			return L.ErrEmailIsRegistered
+		}
 	}
 
-	// Create user confirmation key with expiry
+	// Create email verification key with expiry
 	r := L.Redis()
 	defer r.Close()
 	key := U.RandomString(32)
-	k := "confirmusr:" + key
+	k := "verify:email:" + key
 	r.Send("MULTI")
 	r.Send("SET", k, usr.Id.Hex())
-	r.Send("EXPIRE", k, L.Config.ConfirmationExpiry)
+	r.Send("EXPIRE", k, L.Config.VerifyEmailExpiry)
 	if _, err := r.Do("EXEC"); err != nil {
 		return err
 	}
 
-	// Send confirmation email
+	// Send 'verify email' email
 	m := map[string]string{
 		"name":  usr.FirstName,
 		"email": usr.Email,
 		"key":   key,
 	}
-	go U.EmailConfirmation(m)
+	go U.EmailVerifyEmail(m)
 
 	return nil
 }
@@ -94,11 +102,14 @@ func (usr *User) Login(verify bool) error {
 		db := L.NewDb("users")
 		defer db.Session.Close()
 		if err := db.Collection.Find(bson.M{"email": usr.Email}).One(usr); err != nil {
+			if err == mgo.ErrNotFound {
+				return L.ErrLogin
+			}
 			return err
 		}
 
 		if !bytes.Equal(usr.PasswordHash, U.HashPassword(pwd, usr.Salt)) {
-			return mgo.ErrNotFound
+			return L.ErrLogin
 		}
 	}
 

@@ -1,0 +1,8 @@
+{{define "content"}}
+  Hi {{.name}},
+
+  <p>
+    You recently signed up for Lytup. To verify your email address, follow this link:
+    <br>http://{{.hostname}}/verify/{{.key}}
+  </p>
+{{end}}
