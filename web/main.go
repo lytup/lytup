@@ -25,7 +25,7 @@ func main() {
 		}
 
 		// Go HTTP server puts Content-Type automatically
-		// rw.Header().Add("Content-Type", "text/html; charset=utf-8")
+		// rw.Header().Set("Content-Type", "text/html; charset=utf-8")
 		rw.WriteHeader(http.StatusOK)
 		io.Copy(rw, file)
 	})

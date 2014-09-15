@@ -82,7 +82,7 @@ angular.module('lytup.controllers', [])
       };
 
       function matchPasswords(form, errors) {
-        errors.mismatchPasswords = form.password.$viewValue !== form.password2.$viewValue;
+        errors.passwordMismatch = form.password.$viewValue !== form.password2.$viewValue;
       };
 
       function validateExpiry(form, errors) {
@@ -336,7 +336,7 @@ angular.module('lytup.controllers', [])
     function($scope, $location, $routeParams, $log, Restangular, Notification) {
       $log.info('Verify email controller');
 
-      Restangular.all('users').one('verify', $routeParams.key).get().then(function() {
+      Restangular.all('users').one('verify', $routeParams.code).get().then(function() {
         // TODO: Read messages from server
         Notification.success('Your email has been verified.');
       }).finally(function() {
@@ -399,7 +399,7 @@ angular.module('lytup.controllers', [])
       });
 
       $scope.submit = function() {
-        Restangular.all('users').one('reset', $routeParams.key).get().then(function(usr) {
+        Restangular.all('users').one('reset', $routeParams.code).get().then(function(usr) {
           $window.localStorage.setItem('token', usr.token);
           _.assign($scope.user, usr);
           // TODO: Read messages from server

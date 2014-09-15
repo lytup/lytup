@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	L "github.com/labstack/lytup/server/lytup"
+	. "github.com/labstack/lytup/server/lytup"
 	U "github.com/labstack/lytup/server/utils"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -25,33 +25,35 @@ type User struct {
 	Salt          string        `json:"-" bson:"salt"`
 }
 
-func FindUserById(id string) (*User, error) {
-	db := L.NewDb("users")
-	defer db.Session.Close()
-	usr := &User{}
-	if err := db.Collection.FindId(bson.ObjectIdHex(id)).One(usr); err != nil {
+func (usr *User) FindById() error {
+	db := NewDb("users")
+	defer db.Close()
+	if err := db.Collection.FindId(usr.Id).One(usr); err != nil {
 		if err == mgo.ErrNotFound {
-			return nil, L.ErrUserNotFound
+			return ErrUserNotFound
 		}
-		return nil, err
+		return err
 	}
-	return usr, nil
+	return nil
 }
 
-func FindUserByEmail(email string) (*User, error) {
-	db := L.NewDb("users")
-	defer db.Session.Close()
-	usr := &User{}
-	if err := db.Collection.Find(bson.M{"email": email}).One(usr); err != nil {
+func (usr *User) FindByEmail() error {
+	db := NewDb("users")
+	defer db.Close()
+	if err := db.Collection.Find(bson.M{"email": usr.Email}).One(usr); err != nil {
 		if err == mgo.ErrNotFound {
-			return nil, L.ErrEmailNotFound
+			return ErrEmailNotFound
 		}
-		return nil, err
+		return err
 	}
-	return usr, nil
+	return nil
 }
 
 func (usr *User) Create() error {
+	if err := usr.validate(); err != nil {
+		return err
+	}
+
 	usr.Id = bson.NewObjectId()
 	usr.Salt = U.RandomString(16)
 	usr.PasswordHash = U.HashPassword(usr.Password, usr.Salt)
@@ -59,23 +61,19 @@ func (usr *User) Create() error {
 	usr.CreatedAt = time.Now()
 	usr.UpdatedAt = usr.CreatedAt
 
-	db := L.NewDb("users")
-	defer db.Session.Close()
+	db := NewDb("users")
+	defer db.Close()
 	if err := db.Collection.Insert(usr); err != nil {
 		if mgo.IsDup(err) {
-			return L.ErrEmailIsRegistered
+			return ErrEmailIsRegistered
 		}
 	}
 
-	// Create email verification key with expiry
-	r := L.Redis()
-	defer r.Close()
-	key := U.RandomString(32)
-	k := "verify:email:" + key
-	r.Send("MULTI")
-	r.Send("SET", k, usr.Id.Hex())
-	r.Send("EXPIRE", k, L.Config.VerifyEmailExpiry)
-	if _, err := r.Do("EXEC"); err != nil {
+	// Create verify email key with expiry
+	code := U.RandomString(32)
+	key := "verify:email:" + code
+	val := usr.Id.Hex()
+	if err := SetKeyWithExpiry(key, val, C.VerifyEmailExpiry); err != nil {
 		return err
 	}
 
@@ -83,33 +81,43 @@ func (usr *User) Create() error {
 	m := map[string]string{
 		"name":  usr.FirstName,
 		"email": usr.Email,
-		"key":   key,
+		"code":  code,
 	}
 	go U.EmailVerifyEmail(m)
 
 	return nil
 }
 
-func (usr *User) Find() error {
-	usr, err := FindUserById(usr.Id.Hex())
-	return err
+func (usr *User) Update(m bson.M) error {
+	db := NewDb("users")
+	defer db.Close()
+
+	if err := db.Collection.UpdateId(
+		usr.Id,
+		bson.M{"$set": m}); err != nil {
+		if err == mgo.ErrNotFound {
+			return ErrUserNotFound
+		}
+		return err
+	}
+	return nil
 }
 
 func (usr *User) Login(verify bool) error {
 	pwd := usr.Password // Grab the password before it's lost
 
 	if verify {
-		db := L.NewDb("users")
-		defer db.Session.Close()
+		db := NewDb("users")
+		defer db.Close()
 		if err := db.Collection.Find(bson.M{"email": usr.Email}).One(usr); err != nil {
 			if err == mgo.ErrNotFound {
-				return L.ErrLogin
+				return ErrLogin
 			}
 			return err
 		}
 
 		if !bytes.Equal(usr.PasswordHash, U.HashPassword(pwd, usr.Salt)) {
-			return L.ErrLogin
+			return ErrLogin
 		}
 	}
 
@@ -118,53 +126,91 @@ func (usr *User) Login(verify bool) error {
 	token.Claims["sub"] = usr.Id
 	token.Claims["exp"] = time.Now().Add(120 * time.Hour).Unix()
 	var err error
-	if usr.Token, err = token.SignedString([]byte(L.Config.Key)); err != nil {
+	if usr.Token, err = token.SignedString([]byte(C.Key)); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (usr *User) Update() error {
-	now := time.Now()
-	m := bson.M{"updatedAt": now}
-
-	if usr.FirstName != "" {
-		m["firstName"] = usr.FirstName
-	}
-	if usr.LastName != "" {
-		m["lastName"] = usr.LastName
-	}
-	if usr.Email != "" {
-		m["email"] = usr.Email
-	}
-	if usr.Password != "" {
-		m["salt"] = U.RandomString(16)
-		m["password"] = U.HashPassword(usr.Password, usr.Salt)
+func (usr *User) ResetPassword() error {
+	if err := usr.validatePassword(); err != nil {
+		return err
 	}
 
-	db := L.NewDb("users")
-	defer db.Session.Close()
-	if err := db.Collection.Update(
-		bson.M{"id": usr.Id},
-		bson.M{"$set": m}); err != nil {
+	salt := U.RandomString(16)
+	m := bson.M{
+		"salt":     salt,
+		"password": U.HashPassword(usr.Password, salt),
+	}
+	if err := usr.Update(m); err != nil {
 		return err
 	}
 	return nil
 }
+
+// func (usr *User) Update() error {
+// 	now := time.Now()
+// 	m := bson.M{"updatedAt": now}
+//
+// 	if usr.FirstName != "" {
+// 		m["firstName"] = usr.FirstName
+// 	}
+// 	if usr.LastName != "" {
+// 		m["lastName"] = usr.LastName
+// 	}
+// 	if usr.Email != "" {
+// 		m["email"] = usr.Email
+// 	}
+// 	if usr.Password != "" {
+// 		m["salt"] = U.RandomString(16)
+// 		m["password"] = U.HashPassword(usr.Password, usr.Salt)
+// 	}
+//
+// 	db := NewDb("users")
+// 	defer db.Close()
+// 	if err := db.Collection.Update(
+// 		bson.M{"id": usr.Id},
+// 		bson.M{"$set": m}); err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
 func (usr *User) Save() error {
 	usr.UpdatedAt = time.Now()
 
-	db := L.NewDb("users")
-	defer db.Session.Close()
+	db := NewDb("users")
+	defer db.Close()
 	if err := db.Collection.UpdateId(usr.Id, usr); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (usr *User) Render() *User {
+func (usr *User) validatePassword() error {
+	if len(usr.Password) == 0 || len(usr.Password) <= 6 || len(usr.Password) > 32 {
+		return ErrInvalidPassword
+	}
+	return nil
+}
+
+func (usr *User) validate() error {
+	switch {
+	case len(usr.FirstName) == 0, len(usr.FirstName) > 16:
+		return ErrInvalidFirstName
+	case len(usr.LastName) == 0, len(usr.LastName) > 16:
+		return ErrInvalidLastName
+	case len(usr.Email) == 0, len(usr.Email) > 32, !U.RegexpEmail.MatchString(usr.Email):
+		return ErrInvalidEmail
+	}
+	if err := usr.validatePassword(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (usr *User) ToRender() *User {
 	usr.Password = ""
 	return usr
 }

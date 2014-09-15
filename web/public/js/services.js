@@ -18,7 +18,7 @@ angular.module('lytup.services', [])
           if (res.status === 401) {
             $window.localStorage.removeItem('token');
           }
-          Notification.error(res.data.message);
+          Notification.error(res.data.error);
           return $q.reject(res);
         }
       };

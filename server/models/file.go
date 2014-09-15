@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/dchest/uniuri"
-	L "github.com/labstack/lytup/server/lytup"
+	. "github.com/labstack/lytup/server/lytup"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -26,8 +26,8 @@ func (file *File) Create(folId string, usr *User) error {
 	file.Id = uniuri.NewLen(7)
 	file.CreatedAt = time.Now()
 
-	db := L.NewDb("folders")
-	defer db.Session.Close()
+	db := NewDb("folders")
+	defer db.Close()
 	if err := db.Collection.Update(bson.M{"id": folId, "userId": usr.Id},
 		bson.M{"$set": bson.M{"updatedAt": time.Now()},
 			"$push": bson.M{"files": file}}); err != nil {
@@ -37,8 +37,8 @@ func (file *File) Create(folId string, usr *User) error {
 }
 
 func FindFileById(id string) (*File, string, error) {
-	db := L.NewDb("folders")
-	defer db.Session.Close()
+	db := NewDb("folders")
+	defer db.Close()
 	fol := Folder{}
 	if err := db.Collection.Find(bson.M{"files.id": id}).
 		Select(bson.M{"id": 1, "files": bson.M{"$elemMatch": bson.M{"id": id}}}).
@@ -64,8 +64,8 @@ func (file *File) Update(folId string, usr *User) error {
 		m["files.$.thumbnail"] = file.Thumbnail
 	}
 
-	db := L.NewDb("folders")
-	defer db.Session.Close()
+	db := NewDb("folders")
+	defer db.Close()
 	if err := db.Collection.Update(bson.M{"id": folId, "userId": usr.Id,
 		"files.id": file.Id}, bson.M{"$set": m}); err != nil {
 		return err
@@ -74,8 +74,8 @@ func (file *File) Update(folId string, usr *User) error {
 }
 
 func DeleteFile(folId, fileId string, usr *User) error {
-	db := L.NewDb("folders")
-	defer db.Session.Close()
+	db := NewDb("folders")
+	defer db.Close()
 	fol := Folder{}
 	if _, err := db.Collection.Find(bson.M{"id": folId, "userId": usr.Id, "files.id": fileId}).
 		Select(bson.M{"files": bson.M{"$elemMatch": bson.M{"id": fileId}}}).

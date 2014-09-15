@@ -15,10 +15,10 @@
         {{MESSAGE('invalidPassword')}}
       </p>
     </div>
-    <div class="form-group" ng-class="{'has-error': errors.mismatchPasswords}">
+    <div class="form-group" ng-class="{'has-error': errors.passwordMismatch}">
       <input type="password" name="password2" class="form-control" placeholder="Confirm password" required ng-model="user.password2" ng-minlength="6">
-      <p ng-show="errors.mismatchPasswords" class="help-block">
-        {{MESSAGE('mismatchPasswords')}}
+      <p ng-show="errors.passwordMismatch" class="help-block">
+        {{MESSAGE('passwordMismatch')}}
       </p>
     </div>
     <div class="form-group text-center">

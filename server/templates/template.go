@@ -8,13 +8,13 @@ import (
 
 	"github.com/GeertJohan/go.rice"
 	"github.com/golang/glog"
-	L "github.com/labstack/lytup/server/lytup"
+	. "github.com/labstack/lytup/server/lytup"
 )
 
 var (
 	registry = map[string]*template.Template{}
 	params   = map[string]string{ // Default parameters
-		"hostname": L.Config.Hostname,
+		"hostname": C.Hostname,
 	}
 )
 

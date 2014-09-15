@@ -1,6 +1,6 @@
 {
-  "hostname": "",
-  "key": "",
+  "hostname": "localhost:1431",
+  "key": "QCwt3vtFZEtMI74v3aRd7dIQvfa6Rlij",
   "verifyEmailExpiry": 172800,
   "passwordResetExpiry": 3600,
   "uploadDirectory": "/tmp",
@@ -18,8 +18,8 @@
   "email": {
     "host": "smtp.mandrillapp.com",
     "port": 587,
-    "username": "",
-    "password": "",
+    "username": "admin@labstack.com",
+    "password": "pqeLRbw2JFWpb5OjVzLL1g",
     "fromName": "Lytup",
     "fromEmail": "no-reply@lytup.com"
   }

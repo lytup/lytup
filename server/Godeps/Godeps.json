@@ -1,10 +1,12 @@
 {
 	"ImportPath": "github.com/labstack/lytup/server",
 	"GoVersion": "go1.3.1",
-	"Packages": [
-		"./..."
-	],
 	"Deps": [
+		{
+			"ImportPath": "bitbucket.org/kardianos/osext",
+			"Comment": "null-13",
+			"Rev": "5d3ddcf53a508cc2f7404eaebf546ef2cb5cdb6e"
+		},
 		{
 			"ImportPath": "code.google.com/p/go.crypto/pbkdf2",
 			"Comment": "null-218",
@@ -16,9 +18,17 @@
 			"Rev": "ad01a6fcc8a19d3a4478c836895ffe883bd2ceab"
 		},
 		{
+			"ImportPath": "github.com/GeertJohan/go.rice",
+			"Rev": "c31693b288ed678964ec55135f3f5e5355ceb9ac"
+		},
+		{
 			"ImportPath": "github.com/codegangsta/inject",
 			"Comment": "v1.0-rc1-4-g4b81725",
 			"Rev": "4b8172520a03fa190f427bbd284db01b459bfce7"
+		},
+		{
+			"ImportPath": "github.com/daaku/go.zipexe",
+			"Rev": "44882fc939f4c58d87a60de34796c6cfb9623269"
 		},
 		{
 			"ImportPath": "github.com/dchest/uniuri",
@@ -28,6 +38,10 @@
 			"ImportPath": "github.com/dgrijalva/jwt-go",
 			"Comment": "v1.0.1-3-gef77e10",
 			"Rev": "ef77e106a6bc1d064372a7e2bd1f5d03f40f20b7"
+		},
+		{
+			"ImportPath": "github.com/garyburd/redigo/redis",
+			"Rev": "8d6d4f929affa96b443abd7fdb5a32ffc27865dc"
 		},
 		{
 			"ImportPath": "github.com/go-martini/martini",
@@ -43,12 +57,8 @@
 			"Rev": "e9c33a30b41904aff0f6a934ec9488a4395b3a8b"
 		},
 		{
-			"ImportPath": "github.com/martini-contrib/binding",
-			"Rev": "d5c785112070708d42ff1ee33e3d8d43532c11fd"
-		},
-		{
-			"ImportPath": "github.com/martini-contrib/cors",
-			"Rev": "13d52749faf4fb6f21eb076f50f3b37ea488631c"
+			"ImportPath": "github.com/julienschmidt/httprouter",
+			"Rev": "7deadb6844d2c6ff1dfb812eaa439b87cdaedf20"
 		},
 		{
 			"ImportPath": "github.com/martini-contrib/render",

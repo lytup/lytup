@@ -1,10 +1,13 @@
 package utils
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/dchest/uniuri"
 )
+
+var RegexpEmail = regexp.MustCompile(`^[^@]+@[^@.]+\.[^@.]+`)
 
 func IsImage(typ string) bool {
 	return strings.HasPrefix(typ, "image")

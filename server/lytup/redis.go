@@ -12,8 +12,20 @@ func Redis() redis.Conn {
 	return pool.Get()
 }
 
+// SetKeyWithExpiry sets a key with expiry.
+func SetKeyWithExpiry(key, val string, expiry uint) error {
+	r := Redis()
+	defer r.Close()
+	r.Send("MULTI")
+	r.Send("SET", key, val)
+	r.Send("EXPIRE", key, C.VerifyEmailExpiry)
+	if _, err := r.Do("EXEC"); err != nil {
+		return err
+	}
+	return nil
+}
+
 func init() {
-	cfg := Config.Redis
 	pool = &redis.Pool{
 		MaxIdle:     3,
 		IdleTimeout: 240 * time.Second,
@@ -23,8 +35,8 @@ func init() {
 				return nil, err
 			}
 
-			if cfg.Password != "" {
-				if _, err := c.Do("AUTH", cfg.Password); err != nil {
+			if C.Redis.Password != "" {
+				if _, err := c.Do("AUTH", C.Redis.Password); err != nil {
 					c.Close()
 					return nil, err
 				}

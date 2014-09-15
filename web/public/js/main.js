@@ -36,7 +36,7 @@ angular.module('lytup', [
         templateUrl: '/tpl/home.html'
       });
 
-      $routeProvider.when('/verify/:key', {
+      $routeProvider.when('/verify/:code', {
         controller: 'VerifyEmailCtrl',
         template: ''
       });
@@ -46,7 +46,7 @@ angular.module('lytup', [
         templateUrl: '/tpl/home.html'
       });
 
-      $routeProvider.when('/reset/:key', {
+      $routeProvider.when('/reset/:code', {
         controller: 'ResetPwdCtrl',
         templateUrl: '/tpl/home.html'
       });
@@ -72,6 +72,7 @@ angular.module('lytup', [
       $rootScope.BASE_URI = location.protocol + '//' + location.hostname + (location.port && ':' + location.port);
 
       $rootScope.MESSAGE = function(key) {
+        // TODO: Get it from server
         return {
           blankFirstName: 'First name is required',
           blankLastName: 'Last name is required',
@@ -79,7 +80,7 @@ angular.module('lytup', [
           invalidEmail: 'Email is invalid',
           blankPassword: 'Password cannot be blank',
           invalidPassword: 'Password must be at least 6 characters',
-          mismatchPasswords: 'Passwords do not match',
+          passwordMistach: 'Passwords do not match',
           blankExpiry: 'Expiry is required'
         }[key];
       };

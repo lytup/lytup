@@ -5,7 +5,7 @@ import (
 	"path"
 	"time"
 
-	L "github.com/labstack/lytup/server/lytup"
+	. "github.com/labstack/lytup/server/lytup"
 	U "github.com/labstack/lytup/server/utils"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -28,7 +28,7 @@ func (fol *Folder) Create() error {
 	fol.UpdatedAt = fol.CreatedAt
 	fol.ExpiresAt = fol.CreatedAt.Add(time.Duration(fol.Expiry) * time.Hour)
 
-	db := L.NewDb("folders")
+	db := NewDb("folders")
 	defer db.Session.Close()
 	if err := db.Collection.Insert(&fol); err != nil {
 		return err
@@ -37,8 +37,8 @@ func (fol *Folder) Create() error {
 }
 
 func FindFolders(usr *User) ([]Folder, error) {
-	db := L.NewDb("folders")
-	defer db.Session.Close()
+	db := NewDb("folders")
+	defer db.Close()
 	folders := []Folder{}
 	if err := db.Collection.Find(bson.M{"userId": usr.Id}).All(&folders); err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func FindFolders(usr *User) ([]Folder, error) {
 }
 
 func FindFolderById(id string) (*Folder, error) {
-	db := L.NewDb("folders")
+	db := NewDb("folders")
 	defer db.Session.Close()
 	fol := Folder{}
 	if err := db.Collection.Find(bson.M{"id": id}).One(&fol); err != nil {
@@ -70,7 +70,7 @@ func (fol *Folder) Update(usr *User) error {
 		fol.ExpiresAt = m["expiresAt"].(time.Time)
 	}
 
-	db := L.NewDb("folders")
+	db := NewDb("folders")
 	defer db.Session.Close()
 	if err := db.Collection.Update(
 		bson.M{"id": fol.Id, "userId": usr.Id},
@@ -81,7 +81,7 @@ func (fol *Folder) Update(usr *User) error {
 }
 
 func DeleteFolder(id string, usr *User) error {
-	db := L.NewDb("folders")
+	db := NewDb("folders")
 	defer db.Session.Close()
 	if err := db.Collection.Remove(bson.M{"id": id, "userId": usr.Id}); err != nil {
 		return err
